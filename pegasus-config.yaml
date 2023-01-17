@@ -1,0 +1,27 @@
+default_context:
+  _pegasus_version: '2022.12'
+  author_name: bmt
+  ci: github_actions
+  css_framework: bootstrap
+  css_theme: default
+  database: postgres
+  deploy_platform: none
+  description: The most amazing SaaS application the world has ever seen
+  domain_name: localhost:8000
+  email: rquin@billmoretech.com
+  enable_google_login: y
+  enable_twitter_login: y
+  front_end_framework: htmx
+  project_name: bmt-gpt-saas
+  project_slug: bmt_gpt
+  stripe_payment_mode: checkout
+  subscription_billing_model: default
+  use_2fa: y
+  use_api_keys: n
+  use_docker: y
+  use_impersonation: y
+  use_sentry: y
+  use_subscriptions: y
+  use_teams: y
+  use_translations: y
+  use_wagtail: n

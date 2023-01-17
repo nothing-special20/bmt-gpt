@@ -1,0 +1,47 @@
+<aside style="min-width: 200px;">
+  <div class="mb-1">
+    Pegasus Examples
+  </div>
+  <ul class="nav nav-pills flex-column">
+    <li class="nav-item">
+      <a href="{% url 'pegasus_examples:examples_home' %}" class="nav-link {% if active_tab == 'home' %}active{% endif %}">
+        <span class="pg-icon"><i class="fa fa-home"></i></span><span>Examples Home</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'pegasus_examples:payments' %}" class="nav-link {% if active_tab == 'payments' %}active{% endif %}">
+        <span class="pg-icon"><i class="fa fa-credit-card"></i></span><span>Payments</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'pegasus_employees:object_lifecycle_home' %}" class="nav-link {% if active_tab == 'object_lifecycle' %}active{% endif %}">
+        <span class="pg-icon"><i class="fa fa-users"></i></span><span>Employee App</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'pegasus_examples:tasks' %}" class="nav-link {% if active_tab == 'tasks' %}active{% endif %}">
+        <span class="pg-icon"><i class="fa fa-tasks"></i></span><span>Background Tasks</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'pegasus_employees:charts' %}" class="nav-link {% if active_tab == 'charts' %}active{% endif %}">
+        <span class="pg-icon"><i class="fa fa-bar-chart-o"></i></span><span>Charts</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'pegasus_examples:landing_page' %}" class="nav-link {% if active_tab == 'landing_page' %}active{% endif %}">
+        <span class="pg-icon"><i class="fa fa-picture-o"></i></span><span>Landing Page</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'pegasus_examples:pricing_page' %}" class="nav-link {% if active_tab == 'pricing_page' %}active{% endif %}">
+        <span class="pg-icon"><i class="fa fa-external-link"></i></span><span>Pricing Page</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'pegasus_examples:flags' %}" class="nav-link {% if active_tab == 'flags' %}active{% endif %}">
+        <span class="pg-icon"><i class="fa fa-flag"></i></span><span>Feature Flags</span>
+      </a>
+    </li>
+  </ul>
+</aside>
