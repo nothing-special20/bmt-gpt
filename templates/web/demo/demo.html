@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>Search</title>
+    <link rel="icon" type="image/png" href="img/favicon.png" />
+
+    <!--Core CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "css/bulma.css" %}">
+    <link rel="stylesheet" href="{% static "css/app.css" %}">
+    <link id="theme-sheet" rel="stylesheet" href="{% static "css/core.css" %}">
+
+</head>
+
+<body class="is-theme-core">
+    <!--Load more data--> 
+    <div class="footer-light-medium">
+        <div class="container">
+            <div class="footer-head">
+                <div class="head-text">
+                    <h3>Ready to get started?</h3>
+                    <p>Start loading your documents into the search tool!</p>
+                </div>
+                <div class="head-action">
+                    <div class="buttons">
+                        <form method="post" enctype="multipart/form-data" action="">
+                            {% csrf_token %}
+                            <input type="file" name="load-docs" class="button primary-btn raised action-button is-bold" multiple="multiple"/>
+                            <button type="submit" class="button primary-btn raised action-button is-bold">Upload Documents</button>
+                        </form>
+                        <div>
+                            {{ upload_msg }}
+                        </div>    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <!-- Hero image -->
+    <div id="main-hero" class="hero-body">
+        <div class="container has-text-centered">
+            <div class="columns is-vcentered">
+                <div class="column is-6 is-offset-3 has-text-centered is-subheader-caption has-search">
+                    <h1 class="title is-2">
+                        Document Search Tool
+                    </h1>
+                    <h2 class="subtitle">Find what you're looking for, fast</h2>
+                    <div class="search-area">
+                        <form class="control has-icons-left" method="post">
+                            {% csrf_token %}
+                            <input class="input is-large" type="text" placeholder="Search..." name="search-text">
+                            <span class="icon is-small is-left">
+                                <i class="sl sl-icon-magnifier"></i>
+                            </span>
+                            <div class="search-button">
+                                <button class="button primary-btn is-bold">Search</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section blog-section">
+        {% for file in es_files %}
+            <div class="container">
+                <div class="columns">
+                <div class="is-post">
+                        <div class="featured-post-body">
+                            <div class="featured-post-title">
+                                <div class="title-meta">
+                                    <h2 class="post-title">
+                                        <span>File: {{ file.FILENAME }}</span>
+                                    </h2>
+                                    <h4 class="post-subtitle">
+                                        <span>Page Number: {{ file.PG_NUM }}</span>
+                                    </h4>
+                                </div>
+                            </div>
+                            <p>{{ file.DOC_TEXT }}</p>
+
+                            <a class="read-more-link">
+                                Read More <span>&#10230;</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    
+    <!-- /Chat widget -->
+    <!-- Concatenated jQuery and plugins -->
+    <script src="{% static "js/app.js" %}"></script>
+
+    <!-- Bulkit js -->
+    <script src="{% static "js/functions.js" %}"></script>
+    <script src="{% static "js/auth.js" %}"></script>
+    <script src="{% static "js/contact.js" %}"></script>
+    <script src="{% static "js/main.js" %}"></script>
+
+    <!-- Landing page js -->
+</body>
+
+</html>
