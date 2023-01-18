@@ -4,6 +4,14 @@ import sys
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bmt_gpt.settings')
+    if (os.getenv('DEBUG', 'False') == 'True'):
+        import debugpy
+        try:
+            debugpy.listen(("web", 3000))
+            print('Debugger Attached!')
+        except:
+            'Debugger not attached'
+        # debugpy.wait_for_client()
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

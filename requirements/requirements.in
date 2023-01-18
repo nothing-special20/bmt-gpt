@@ -14,3 +14,7 @@ celery-progress
 celery
 celery[redis]
 sentry-sdk
+openai
+python-docx
+pandas
+debugpy

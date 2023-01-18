@@ -26,6 +26,7 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+      - "3000:3000"
     env_file:
       - ./.env.docker
     depends_on:
