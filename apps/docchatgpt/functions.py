@@ -20,6 +20,8 @@ env.read_env(os.path.join(BASE_DIR,  ".env"))
 
 OPEN_AI_KEY = env('OPEN_AI_KEY', default='')
 
+os.environ['OPENAI_API_KEY'] = OPEN_AI_KEY
+
 def read_word_doc(file_path):
     doc = docx.Document(file_path)
     fullText = []
@@ -56,7 +58,7 @@ def interpret_text(query, doc_text):
     # engine="text-davinci-002",
     # engine="babbage",
     # engine="curie",
-    x = open_ai_summarize_text(prompt, engine='text-davinci-002', max_tokens=1000)
+    x = open_ai_summarize_text(prompt, engine='text-davinci-002', max_tokens=2290)
     # x = open_ai_summarize_text(prompt, engine='ada', max_tokens=1000)
 
     x = json.loads(json.dumps(x))

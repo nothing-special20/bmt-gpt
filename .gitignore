@@ -20,3 +20,4 @@ _dist/
 # uncomment these lines after setting up the front-end build pipeline in dev and production
 # static/css/
 # static/js/
+static/misc_data/gpt_index_testing_index.json
