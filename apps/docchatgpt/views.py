@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
-from gpt_index import GPTSimpleVectorIndex, SimpleDirectoryReader
+from gpt_index import GPTSimpleVectorIndex
 
 from datetime import datetime
 
 from .functions import interpret_text, read_word_doc
-from .models import DocQueries
+from .models import DocQueries, IndexQueries
 from django.templatetags.static import static
 
 import os
@@ -67,7 +67,9 @@ def main(request, team_slug):
         #                             {'queries': queries,
         #                             'upload_msg': 'File upload finished!!'})
 
-        if request.method == 'POST' and 'search-text' in request.POST and len(request.FILES.getlist('load-docs')) == 0: #
+        if request.method == 'POST' and 'search-text' in request.POST: #
+            user = request.user.username
+
             # index_path = '/code/static/misc_data/gpt_index_testing_index.json'
             index_path = '/code/static/misc_data/gpt_index_justia_index.json'
 
@@ -77,13 +79,21 @@ def main(request, team_slug):
 
             response = index.query(search_text)
 
-            queries = [
-                {
-                    'DOC_NAME': 'test',
-                    'QUERY': search_text,
-                    'GPT_RESPONSE': response,
-                }
-            ]
+            total_llm_token_usage = index.llm_predictor.last_token_usage
+            total_embedding_token_usage = index.embed_model.last_token_usage
+
+            doc = IndexQueries(
+                USER = user,
+                INDEX_NAME = os.path.basename(index_path),
+                QUERY = search_text,
+                GPT_RESPONSE = response,
+                TOTAL_LLM_TOKEN_USAGE = total_llm_token_usage,
+                TOTAL_EMBEDDING_TOKEN_USAGE = total_embedding_token_usage,
+                QUERY_DATE = datetime.now()
+            )
+            doc.save()
+
+            queries = IndexQueries.objects.filter(USER=user).all().distinct().order_by('QUERY_DATE')
 
             return render(request, 'web/demo/demo.html', 
                                     {'queries': queries,

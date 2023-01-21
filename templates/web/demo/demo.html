@@ -25,78 +25,49 @@
         <div class="container">
             <div class="footer-head">
                 <div class="head-text">
-                    <h3>Your Docs + Chat GPT</h3>
-                    <p>A magic lamp for word documents!</p>
-                </div>
-                <div class="head-action">
-                    <div class="buttons">
-                        <form method="post" enctype="multipart/form-data" action="">
-                            {% csrf_token %}
-                            <input type="file" name="load-docs-old" class="button primary-btn raised action-button is-bold" multiple="multiple"/>
-                            <button type="submit" class="button primary-btn raised action-button is-bold">Upload Documents</button>
-                        </form>
-                        <div>
-                            {{ upload_msg }}
-                        </div>    
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> 
-    <!-- Hero image -->
-    <div id="main-hero" class="hero-body">
-        <div class="container has-text-centered">
-            <div class="columns is-vcentered">
-                <div class="column is-10 is-offset-1 has-text-centered is-subheader-caption has-search">
-                    <h1 class="title is-2">
-                        Chat GPT Doc Search
-                    </h1>
-                    <h2 class="subtitle">Find what you're looking for, fast</h2>
-                    <div class="search-area">
-                        <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="">
-                            {% csrf_token %}
-                            {% comment %} <input class="input is-large" type="text" placeholder="Search..." name="search-text"> {% endcomment %}
-                            <textarea class="textarea is-large" placeholder="Ask Anything!" name="search-text"></textarea>
-                            <span class="icon is-small is-left">
-                                <i class="sl sl-icon-magnifier"></i>
-                            </span>
-                            <input type="file" name="load-docs" class="button primary-btn raised action-button is-bold" multiple="multiple"/>
-                            <div class="search-button">
-                                <button type="submit" class="button primary-btn is-bold">Search</button>
-                            </div>
-                        </form>
-                    </div>
+                    <h3>Justia + Chat GPT</h3>
+                    <p>Read court records faster</p>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="section blog-section">
+    <div class="section blog-section" style="max-height:600px; overflow:auto;">
         {% for query in queries %}
             <div class="container">
                 <div class="columns">
-                <div class="is-post">
+                    <div class="is-post" style="min-width:956.5px;">
                         <div class="featured-post-body">
-                            <div class="featured-post-title">
-                                <div class="title-meta">
-                                    <h2 class="post-title">
-                                        <span>Response: {{ query.DOC_NAME }}</span>
-                                    </h2>
-                                    <h4 class="post-subtitle">
-                                        <span>Document: {{ query.QUERY }}</span>
-                                    </h4>
-                                </div>
-                            </div>
-                            <p>{{ query.GPT_RESPONSE }}</p>
-
-                            <a class="read-more-link">
-                                Read More <span>&#10230;</span>
-                            </a>
+                            <p><span><strong>You:</strong> {{ query.QUERY }}</span>
+                            <p><strong>Bot Response:</strong> {{ query.GPT_RESPONSE }}</p>
                         </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
+    </div>
+    <!-- Hero image -->
+    <div id="main-hero" class="hero-body">
+        <div class="container has-text-centered">
+            <div class="columns is-vcentered">
+                <div class="column is-10 is-offset-1 has-text-centered is-subheader-caption has-search">
+                    {% comment %} search-area  {% endcomment %}
+                    <div class="container">
+                        <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
+                            {% csrf_token %}
+                            <div class="row">
+                                <textarea class="textarea is-large" placeholder="Ask Anything!" name="search-text"></textarea>
+                                <span class="icon is-small is-left">
+                                    <i class="sl sl-icon-magnifier"></i>
+                                </span>
+                            </div>
+                            <div class="search-button row btn-lg" style="margin-top:20px;">
+                                <button type="submit" class="button primary-btn is-bold" style="min-width:250px; min-height:50px;">Search</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     
