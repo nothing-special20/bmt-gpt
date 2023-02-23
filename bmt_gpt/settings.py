@@ -320,7 +320,9 @@ else:
 if REDIS_URL.startswith('rediss'):
     REDIS_URL = f"{REDIS_URL}?ssl_cert_reqs=none"
 
-CELERY_BROKER_URL = CELERY_RESULT_BACKEND = REDIS_URL
+# CELERY_BROKER_URL = CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
 # Waffle config
 

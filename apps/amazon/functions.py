@@ -26,6 +26,16 @@ OPEN_AI_KEY = env('OPEN_AI_KEY', default='')
 
 os.environ['OPENAI_API_KEY'] = OPEN_AI_KEY
 
+like_partial_prompt = "From the following reviews, Write the Top 5 things people like about the product, each review is separated by a semicolon: "
+dislike_partial_prompt = "From the following reviews, Write the Top 5 things people dislike about the product, each review is separated by a semicolon: "
+description_partial_prompt = "From the following reviews, Write the Top 5 phrases people used to describe the product, each review is separated by a semicolon: "
+
+prompts = {
+    'dislike_partial_prompt': dislike_partial_prompt,
+    'like_partial_prompt': like_partial_prompt,
+    'description_partial_prompt': description_partial_prompt,
+}
+
 # get amazon reviews
 def get_reviews(asin, pg_num):
     url = "https://amazon23.p.rapidapi.com/reviews"
@@ -216,17 +226,26 @@ def asin_gpt_data(user, asin, prompts):
 def store_gpt_results(user, asin, prompts):
     agg_reviews = agg_reviews_for_gpt(user, asin)
 
-    dislikes = gpt_analyze_reviews(agg_reviews, asin, prompts['dislike_partial_prompt'])
-
     likes = gpt_analyze_reviews(agg_reviews, asin, prompts['like_partial_prompt'])
+
+    save_gpt_results(user, asin, prompts['like_partial_prompt'], likes)
+
+    dislikes = gpt_analyze_reviews(agg_reviews, asin, prompts['dislike_partial_prompt'])
+    
+    save_gpt_results(user, asin, prompts['dislike_partial_prompt'], dislikes)
     
     descriptions = gpt_analyze_reviews(agg_reviews, asin, prompts['description_partial_prompt'])
 
     save_gpt_results(user, asin, prompts['description_partial_prompt'], descriptions)
-    save_gpt_results(user, asin, prompts['dislike_partial_prompt'], dislikes)
-    save_gpt_results(user, asin, prompts['like_partial_prompt'], likes)
+    
+    
 
 
 def split_list_into_sublists(list_to_split, number_of_sublists):
     length_of_sublist = len(list_to_split) // number_of_sublists
     return [list_to_split[i:i+length_of_sublist] for i in range(0, len(list_to_split), length_of_sublist)]
+
+def store_reviews(user, asin, page_range):
+    for pg_num in page_range:
+        reviews = get_reviews(asin, pg_num)
+        save_reviews(user, asin, pg_num, reviews)
