@@ -1,5 +1,10 @@
+{% load static %}
+<head>
+    <link rel="stylesheet" href="{% static "css/custom.css" %}">
+</head>
 <div style="margin-left:20px;">
     <h3 style="font-weight:bold;">Compare Products</h3>
+    
     <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
         {% csrf_token %}
         <div class="columns" style="width:60rem;">
@@ -11,12 +16,15 @@
                         <option value="{{ asin }}">{{ asin }}</option>
                     {% endfor %}
                 </select>
-                <select class="form-select" name="retrieve-asin-data-2">
-                    <option selected>Select ASIN</option>
-                    {% for asin in asin_list %}
-                        <option value="{{ asin }}">{{ asin }}</option>
-                    {% endfor %}
-                </select>
+                <div class="dropdown">
+                    <button onclick="myFunction()" class="dropbtn" type="button" id="asin-btn-2">Select ASIN</button>
+                    <div id="myDropdown" class="dropdown-content">
+                        <input type="text" placeholder="Search.." id="myInput" onkeyup="filterFunction()" name="retrieve-asin-data-2">
+                        {% for asin in asin_list %}
+                            <button value="{{ asin }}" class="asin-dropdown" onClick="changeValue('{{ asin }}')" type="button">{{ asin }}</button>
+                        {% endfor %}
+                    </div>
+                </div> 
             </div>
             <div class="search-button row btn-lg column" style="margin-top:-5px;">
                 <button type="submit" class="button primary-btn is-bold" style="min-width:150px; min-height:10px;">Compare</button>
@@ -24,3 +32,13 @@
         </div>
     </form>
 </div>
+
+<script src="{% static "js/custom.js" %}"></script>
+<script>
+    function changeValue(o){
+      document.getElementById('myInput').value=o;
+      document.getElementById('myInput').placeholder=o;
+      document.getElementById("myDropdown").classList.toggle("show");
+      document.getElementById("asin-btn-2").innerHTML=o;
+     }
+ </script>
