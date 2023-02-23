@@ -2,8 +2,8 @@
     <h3 style="font-weight:bold;">Compare Products</h3>
     <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
         {% csrf_token %}
-        <div class="row">
-            <div class="form-group">
+        <div class="columns" style="width:60rem;">
+            <div class="form-group column">
                 <label>Compare ASIN Data</label>
                 <select class="form-select" name="retrieve-asin-data">
                     <option selected>Select ASIN</option>
@@ -18,9 +18,9 @@
                     {% endfor %}
                 </select>
             </div>
-        </div>
-        <div class="search-button row btn-lg" style="margin-top:20px;">
-            <button type="submit" class="button primary-btn is-bold" style="min-width:250px; min-height:50px;">Compare</button>
+            <div class="search-button row btn-lg column" style="margin-top:-5px;">
+                <button type="submit" class="button primary-btn is-bold" style="min-width:150px; min-height:10px;">Compare</button>
+            </div>
         </div>
     </form>
 </div>

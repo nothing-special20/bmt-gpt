@@ -19,8 +19,7 @@
 
 </head>
 
-<body class="is-theme-core">
-    
+<body class="is-theme-core">   
     <!--Load more data--> 
     <div class="footer-light-medium" style="padding-top:20px !important;">
         <div style="margin-left:40px;">
@@ -33,23 +32,21 @@
         </div>
     </div>
     <div class="section blog-section">{% comment %} style="max-height:450px; overflow:auto;" {% endcomment %}
-        <div style="margin-left:20px;">
+        <div>
             <div class="">
                 <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
                     {% csrf_token %}
-                    <div class="row">
-                        <div class="form-group">
+                    <div class="columns" style="width:60rem;">
+                        <div class="form-group column">
                             <label>Get New ASIN Data</label>
                             <input type="text" class="form-control" name="search-asin" placeholder="Enter ASIN">
                         </div>
-                    </div>
-                    <div class="search-button row btn-lg" style="margin-top:20px;">
-                        <button type="submit" class="button primary-btn is-bold" style="min-width:250px; min-height:50px;">Search</button>
+                        <div class="search-button btn-lg column" style="margin-top:-5px;">
+                            <button type="submit" class="button primary-btn is-bold" style="min-width:150px; min-height:10px;">Search</button>
+                        </div>
                     </div>
                 </form>
             </div>
-            <br><br>
-            
         </div>
     </div>
     <!-- Hero image -->
@@ -65,8 +62,7 @@
             </div>
         {% endif %}
     </div>
-
-
+    
     
     <!-- /Chat widget -->
     <!-- Concatenated jQuery and plugins -->
