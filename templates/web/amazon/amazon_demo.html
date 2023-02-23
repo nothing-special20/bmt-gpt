@@ -59,9 +59,11 @@
         <div class="column">
             {% include "web/amazon/components/product_eval_component.html" with asin_details=asin_one_data %}
         </div>
-        <div class="column">
-            {% include "web/amazon/components/product_eval_component.html" with asin_details=asin_two_data %}
-        </div>
+        {% if asin_two_data %}
+            <div class="column">
+                {% include "web/amazon/components/product_eval_component.html" with asin_details=asin_two_data %}
+            </div>
+        {% endif %}
     </div>
 
 
