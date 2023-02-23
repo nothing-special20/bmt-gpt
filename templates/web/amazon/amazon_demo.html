@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>Search</title>
+    <link rel="icon" type="image/png" href="img/favicon.png" />
+
+    <!--Core CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "css/bulma.css" %}">
+    <link rel="stylesheet" href="{% static "css/app.css" %}">
+    <link id="theme-sheet" rel="stylesheet" href="{% static "css/core.css" %}">
+
+</head>
+
+<body class="is-theme-core">
+    
+    <!--Load more data--> 
+    <div class="footer-light-medium" style="padding-top:20px !important;">
+        <div style="margin-left:40px;">
+            <div class="footer-head">
+                <div class="head-text">
+                    <h3>Amazon + Chat GPT</h3>
+                    <p>Get Competitive Intel, Faster</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section blog-section">{% comment %} style="max-height:450px; overflow:auto;" {% endcomment %}
+        <div style="margin-left:20px;">
+            <div class="">
+                <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Get New ASIN Data</label>
+                            <input type="text" class="form-control" name="search-asin" placeholder="Enter ASIN">
+                        </div>
+                    </div>
+                    <div class="search-button row btn-lg" style="margin-top:20px;">
+                        <button type="submit" class="button primary-btn is-bold" style="min-width:250px; min-height:50px;">Search</button>
+                    </div>
+                </form>
+            </div>
+            <br><br>
+            
+        </div>
+    </div>
+    <!-- Hero image -->
+    {% include "web/amazon/components/compare_products.html" %}
+    <br><br>
+    <div class="columns">
+        <div class="column">
+            {% include "web/amazon/components/product_eval_component.html" with asin_details=asin_one_data %}
+        </div>
+        <div class="column">
+            {% include "web/amazon/components/product_eval_component.html" with asin_details=asin_two_data %}
+        </div>
+    </div>
+
+
+    
+    <!-- /Chat widget -->
+    <!-- Concatenated jQuery and plugins -->
+    <script src="{% static "js/app.js" %}"></script>
+
+    <!-- Bulkit js -->
+    <script src="{% static "js/functions.js" %}"></script>
+    <script src="{% static "js/auth.js" %}"></script>
+    <script src="{% static "js/contact.js" %}"></script>
+    <script src="{% static "js/main.js" %}"></script>
+
+    <script>
+        let url = `ws://{window.location.host}/ws/socket-server/`;
+        
+        const chatSocket = new WebSocket(url);
+
+        chatSocket.onMessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log('Data:\t', data);
+        }
+    </script>
+
+    <!-- Landing page js -->
+</body>
+
+</html>

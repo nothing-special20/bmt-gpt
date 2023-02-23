@@ -48,6 +48,7 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.forms',
+    'channels',
 ]
 
 # Put your third-party apps here
@@ -83,9 +84,12 @@ PROJECT_APPS = [
     'apps.teams.apps.TeamConfig',
     'apps.teams_example.apps.TeamsExampleConfig',
     'apps.docchatgpt.apps.DocChatGptConfig',
+    'apps.amazon.apps.AmazonConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PEGASUS_APPS + PROJECT_APPS
+
+ASGI_APPLICATION = 'bmt_gpt.asgi.application'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

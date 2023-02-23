@@ -81,6 +81,17 @@
     <script src="{% static "js/contact.js" %}"></script>
     <script src="{% static "js/main.js" %}"></script>
 
+    <script>
+        let url = `ws://{window.location.host}/ws/socket-server/`;
+        
+        const chatSocket = new WebSocket(url);
+
+        chatSocket.onMessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log('Data:\t', data);
+        }
+    </script>
+
     <!-- Landing page js -->
 </body>
 

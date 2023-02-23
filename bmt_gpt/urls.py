@@ -39,6 +39,7 @@ team_urlpatterns = [
     path('team/', include(single_team_urls)),
     path('example/', include('apps.teams_example.urls')),
     path('docchatgpt/', include('apps.docchatgpt.urls')),
+    path('amazon/', include('apps.amazon.urls')),
 ]
 
 urlpatterns = [

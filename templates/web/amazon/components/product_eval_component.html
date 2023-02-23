@@ -1,0 +1,49 @@
+<div style="margin-left:20px;">
+    <br><br>
+    <div class="row">
+        <h2 style="font-size: 25px;">{{ asin_details.product_details.title}}</h2>
+    </div>
+    <br><br>
+    <div class="row">
+        <div style="width: 50rem; overflow:auto;">
+            <img src={{ asin_details.product_img }}></img>
+        </div>
+        <div style="width: 50rem; overflow:auto;">
+            <p>{{asin_details.product_details.description}}</p>
+        </div>
+    </div>
+    <br><br>
+    <div class="card" style="width: 50rem; overflow:auto;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">Top 5 things people like about the product</h5>
+            <ol type="1" start="1">
+                {% for like in asin_details.liked_reviews %}
+                    <li>{{ like }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+    <br><br>
+    <div class="card" style="width: 50rem; overflow:auto;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">Top 5 things people dislike about the product</h5>
+            <ul>
+                {% for dislike in asin_details.disliked_reviews %}
+                    <li>{{ dislike }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <br><br>
+    <div class="card" style="width: 50rem; overflow:auto;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">Top 5 phrases people used to describe the product</h5>
+            <ul>
+                {% for description in asin_details.description_reviews %}
+                    <li style="list-style-position: inside;">{{ description }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <br><br>
+</div>
