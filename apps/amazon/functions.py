@@ -160,6 +160,8 @@ def gpt_analyze_reviews(agg_reviews, asin, partial_prompt):
             "prompt_tokens": prompt_tokens,
         }
 
+    print('gpt analysis done')
+
     return output
 
 def save_gpt_results(user, asin, partial_prompt, gpt_data):
@@ -210,3 +212,21 @@ def asin_gpt_data(user, asin, prompts):
         'disliked_reviews': disliked_reviews,
         'description_reviews': description_reviews,
     }
+
+def store_gpt_results(user, asin, prompts):
+    agg_reviews = agg_reviews_for_gpt(user, asin)
+
+    dislikes = gpt_analyze_reviews(agg_reviews, asin, prompts['dislike_partial_prompt'])
+
+    likes = gpt_analyze_reviews(agg_reviews, asin, prompts['like_partial_prompt'])
+    
+    descriptions = gpt_analyze_reviews(agg_reviews, asin, prompts['description_partial_prompt'])
+
+    save_gpt_results(user, asin, prompts['description_partial_prompt'], descriptions)
+    save_gpt_results(user, asin, prompts['dislike_partial_prompt'], dislikes)
+    save_gpt_results(user, asin, prompts['like_partial_prompt'], likes)
+
+
+def split_list_into_sublists(list_to_split, number_of_sublists):
+    length_of_sublist = len(list_to_split) // number_of_sublists
+    return [list_to_split[i:i+length_of_sublist] for i in range(0, len(list_to_split), length_of_sublist)]

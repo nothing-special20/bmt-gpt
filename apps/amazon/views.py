@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
-import re
-import json
+import multiprocessing
+from itertools import repeat
 
 # from .functions import interpret_text, read_word_doc
 # from .models import DocQueries, IndexQueries
@@ -13,9 +13,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 from django.contrib.staticfiles.storage import staticfiles_storage
 
-from .functions import get_reviews, save_reviews, agg_reviews_for_gpt, gpt_analyze_reviews, save_gpt_results, get_single_product_detail, save_product_detail, asin_gpt_data
+from .functions import get_reviews, save_reviews, get_single_product_detail, save_product_detail, asin_gpt_data, store_gpt_results, split_list_into_sublists
 from .models import ProductReviews, ReviewsAnalyzed, ProductDetails
 
+def store_reviews(user, asin, page_range):
+    for pg_num in page_range:
+        reviews = get_reviews(asin, pg_num)
+        save_reviews(user, asin, pg_num, reviews)
 
 like_partial_prompt = "From the following reviews, Write the Top 5 things people like about the product, each review is separated by a semicolon: "
 dislike_partial_prompt = "From the following reviews, Write the Top 5 things people dislike about the product, each review is separated by a semicolon: "
@@ -41,20 +45,12 @@ def main(request, team_slug):
             product_detail = get_single_product_detail(asin)
             save_product_detail(user, asin, product_detail)
 
-            for pg_num in range(1, 15):
-                reviews = get_reviews(asin, pg_num)
-                save_reviews(user, asin, pg_num, reviews)
+            sublists = split_list_into_sublists(range(1, 16), 6)
+
+            pool = multiprocessing.Pool(processes=6)
+            pool.starmap(store_reviews, zip(repeat(user), repeat(asin), sublists))
         
-            agg_reviews = agg_reviews_for_gpt(user, asin)
-            
-            dislikes = gpt_analyze_reviews(agg_reviews, asin, dislike_partial_prompt)
-            save_gpt_results(user, asin, dislike_partial_prompt, dislikes)
-
-            likes = gpt_analyze_reviews(agg_reviews, asin, like_partial_prompt)
-            save_gpt_results(user, asin, like_partial_prompt, likes)
-
-            descriptions = gpt_analyze_reviews(agg_reviews, asin, description_partial_prompt)
-            save_gpt_results(user, asin, description_partial_prompt, descriptions)
+            store_gpt_results(user, asin, prompts)
 
         if request.method == 'POST' and 'retrieve-asin-data' in request.POST:
             asin = request.POST.get('retrieve-asin-data')
