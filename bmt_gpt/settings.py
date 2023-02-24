@@ -262,6 +262,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
+    '/staticfiles/'
 ]
 
 # uncomment to use manifest storage to bust cache when file change
