@@ -153,7 +153,7 @@ else:
             'NAME': env('DJANGO_DATABASE_NAME', default='bmt_gpt'),
             'USER': env('DJANGO_DATABASE_USER', default='postgres'),
             'PASSWORD': env('DJANGO_DATABASE_PASSWORD', default='***'),
-            'HOST': env('DJANGO_DATABASE_HOST', default='localhost'),
+            'HOST': env('DJANGO_DATABASE_HOST', default='db'),
             'PORT': env('DJANGO_DATABASE_PORT', default='5432'),
         }
     }
