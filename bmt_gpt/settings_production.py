@@ -25,7 +25,9 @@ CSRF_COOKIE_SECURE = True
 USE_HTTPS_IN_ABSOLUTE_URLS = True
 
 ALLOWED_HOSTS = [
-    '*',  # update with your production hosts
+    'jungleinsightz.com',
+    'www.jungleinsightz.com',
+    'localhost',
 ]
 
 
