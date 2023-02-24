@@ -37,6 +37,7 @@ ALLOWED_HOSTS = [
     'jungleinsightz.com',
     'www.jungleinsightz.com',
     'localhost',
+    '208.87.128.2',
 ]
 
 
