@@ -12,15 +12,15 @@
       <span class="pg-icon"><i class="fa fa-desktop"></i></span><span class="is-hidden-tablet-only">{% translate "Subscription Demo" %}</span>
     </a>
   </li>
-  <li class="nav-item">
+  {% comment %} <li class="nav-item">
     <a href="{% url 'subscriptions_team:subscription_details' request.team.slug %}" class="nav-link {% if active_tab == 'subscription' %}active{% endif %}">
       <span class="pg-icon"><i class="fa fa-repeat"></i></span><span class="is-hidden-tablet-only">{% translate "Subscription" %}</span>
     </a>
-  </li>
+  </li> {% endcomment %}
   {% endif %}
-  <li class="nav-item">
+  {% comment %} <li class="nav-item">
     <a href="{% url 'single_team:manage_team' request.team.slug %}" class="nav-link {% if active_tab == 'manage-team' %}active{% endif %}">
       <span class="pg-icon"><i class="fa fa-gear"></i></span><span class="is-hidden-tablet-only">{% translate "My Team" %}</span>
     </a>
-  </li>
+  </li> {% endcomment %}
 {% endif %}
