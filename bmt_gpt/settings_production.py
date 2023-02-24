@@ -1,6 +1,6 @@
 from .settings import *
 
-DEBUG = False
+DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
 # fix ssl mixed content issues
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

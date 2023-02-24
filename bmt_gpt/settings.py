@@ -31,9 +31,13 @@ env.read_env(os.path.join(BASE_DIR,  ".env"))
 SECRET_KEY = env('SECRET_KEY', default='SZgSLJMuMqtwQLbgidgkKdtOeboEdPfVMIxxzzWC')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'jungleinsightz.com',
+    'www.jungleinsightz.com',
+    'localhost',
+]
 
 
 # Application definition
