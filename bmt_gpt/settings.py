@@ -303,8 +303,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'bmt-gpt-saas',
-    'DESCRIPTION': 'The most amazing SaaS application the world has ever seen',
+    'TITLE': 'Jungle Insightz',
+    'DESCRIPTION': 'Use GPT to analyze your reviews to improve your Amazon Listing',
     'VERSION': '0.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
     "SWAGGER_UI_SETTINGS": {
@@ -337,9 +337,9 @@ WAFFLE_FLAG_MODEL = 'teams.Flag'
 
 # replace any values below with specifics for your project
 PROJECT_METADATA = {
-    'NAME': gettext_lazy('bmt-gpt-saas'),
+    'NAME': "Jungle Insightz - GPT for Amazon Sellers",
     'URL': 'http://www.jungleinsightz.com',
-    'DESCRIPTION': gettext_lazy("The most amazing SaaS application the world has ever seen"),
+    'DESCRIPTION': gettext_lazy('Use GPT to analyze your reviews to improve your Amazon Listing'),
     'IMAGE': 'https://upload.wikimedia.org/wikipedia/commons/2/20/PEO-pegasus_black.svg',
     'KEYWORDS': 'SaaS, django',
     'CONTACT_EMAIL': 'rquin@billmoretech.com',
