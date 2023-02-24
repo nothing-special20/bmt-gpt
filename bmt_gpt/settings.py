@@ -337,7 +337,7 @@ WAFFLE_FLAG_MODEL = 'teams.Flag'
 # replace any values below with specifics for your project
 PROJECT_METADATA = {
     'NAME': gettext_lazy('bmt-gpt-saas'),
-    'URL': 'http://localhost:8000',
+    'URL': 'http://www.jungleinsightz.com',
     'DESCRIPTION': gettext_lazy("The most amazing SaaS application the world has ever seen"),
     'IMAGE': 'https://upload.wikimedia.org/wikipedia/commons/2/20/PEO-pegasus_black.svg',
     'KEYWORDS': 'SaaS, django',
