@@ -7,21 +7,30 @@
     
     <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
         {% csrf_token %}
-        <div class="columns" style="width:60rem;">
+        <div class="columns" style="width:70rem;">
             <div class="form-group column">
                 <label>Compare ASIN Data</label>
-                <select class="form-select" name="retrieve-asin-data">
+                {% comment %} <select class="form-select" name="retrieve-asin-data">
                     <option selected>Select ASIN</option>
                     {% for asin in asin_list %}
                         <option value="{{ asin }}">{{ asin }}</option>
                     {% endfor %}
-                </select>
+                </select> {% endcomment %}
                 <div class="dropdown">
-                    <button onclick="myFunction()" class="dropbtn" type="button" id="asin-btn-2">Select ASIN</button>
-                    <div id="myDropdown" class="dropdown-content">
-                        <input type="text" placeholder="Search.." id="myInput" onkeyup="filterFunction()" name="retrieve-asin-data-2">
+                    <button onclick="dropdownSearch('myDropdownOne')" class="dropbtn" type="button" id="asin-btn-1">Select ASIN 1</button>
+                    <div id="myDropdownOne" class="dropdown-content">
+                        <input type="text" placeholder="Search.." id="myInputOne" onkeyup="filterFunction('myInputOne', 'myDropdownOne', 'asin-dropdown-1')" name="retrieve-asin-data-1">
                         {% for asin in asin_list %}
-                            <button value="{{ asin }}" class="asin-dropdown" onClick="changeValue('{{ asin }}')" type="button">{{ asin }}</button>
+                            <button value="{{ asin }}" class="asin-dropdown-1" onClick="changeValue('myInputOne', 'myDropdownOne', 'asin-btn-1', '{{ asin }}')" type="button">{{ asin }}</button>
+                        {% endfor %}
+                    </div>
+                </div> 
+                <div class="dropdown">
+                    <button onclick="dropdownSearch('myDropdownTwo')" class="dropbtn" type="button" id="asin-btn-2">Select ASIN 2</button>
+                    <div id="myDropdownTwo" class="dropdown-content">
+                        <input type="text" placeholder="Search.." id="myInputTwo" onkeyup="filterFunction('myInputTwo', 'myDropdownTwo', 'asin-dropdown-2')" name="retrieve-asin-data-2">
+                        {% for asin in asin_list %}
+                            <button value="{{ asin }}" class="asin-dropdown-2" onClick="changeValue('myInputTwo', 'myDropdownTwo', 'asin-btn-2', '{{ asin }}')" type="button">{{ asin }}</button>
                         {% endfor %}
                     </div>
                 </div> 
@@ -35,10 +44,10 @@
 
 <script src="{% static "js/custom.js" %}"></script>
 <script>
-    function changeValue(o){
-      document.getElementById('myInput').value=o;
-      document.getElementById('myInput').placeholder=o;
-      document.getElementById("myDropdown").classList.toggle("show");
-      document.getElementById("asin-btn-2").innerHTML=o;
+    function changeValue(inputTag, dropdownTag, btnTag, val){
+      document.getElementById(inputTag).value=val; // 'myInput'
+      document.getElementById(inputTag).placeholder=val; // 'myInput'
+      document.getElementById(dropdownTag).classList.toggle("show"); // "myDropdown"
+      document.getElementById(btnTag).innerHTML=val; //"asin-btn-2"
      }
  </script>

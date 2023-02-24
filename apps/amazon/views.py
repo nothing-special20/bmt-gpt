@@ -30,8 +30,8 @@ def main(request, team_slug):
 
             prep_all_gpt_data(user, asin)
 
-        if request.method == 'POST' and 'retrieve-asin-data' in request.POST:
-            asin = request.POST.get('retrieve-asin-data')
+        if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
+            asin = request.POST.get('retrieve-asin-data-1')
             asin_compare = request.POST.get('retrieve-asin-data-2')
             
             asin_one_data = asin_gpt_data(user, asin, prompts)

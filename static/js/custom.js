@@ -1,15 +1,15 @@
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
-function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
+function dropdownSearch(dropdownTag) {
+    document.getElementById(dropdownTag).classList.toggle("show"); // "myDropdown"
   }
   
-  function filterFunction() {
+  function filterFunction(inputTag, dropdownTag, dropdownItemTag) {
     var input, filter, ul, li, a, i;
-    input = document.getElementById("myInput");
+    input = document.getElementById(inputTag); // ""
     filter = input.value.toUpperCase();
-    div = document.getElementById("myDropdown");
-    a = div.getElementsByClassName("asin-dropdown");
+    div = document.getElementById(dropdownTag); //"myDropdown"
+    a = div.getElementsByClassName(dropdownItemTag); //""
     for (i = 0; i < a.length; i++) {
       txtValue = a[i].textContent || a[i].innerText;
       if (txtValue.toUpperCase().indexOf(filter) > -1) {
