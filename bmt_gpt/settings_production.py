@@ -1,4 +1,7 @@
-from .settings import *
+# from .settings import *
+import os
+import environ
+env = environ.Env()
 
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
