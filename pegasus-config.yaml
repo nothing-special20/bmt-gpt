@@ -8,7 +8,7 @@ default_context:
   deploy_platform: none
   description: The most amazing SaaS application the world has ever seen
   domain_name: localhost:8000
-  email: rquin@billmoretech.com
+  email: rob@jungleinsights.com
   enable_google_login: y
   enable_twitter_login: y
   front_end_framework: htmx

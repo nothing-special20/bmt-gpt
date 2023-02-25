@@ -50,8 +50,8 @@ ANYMAIL = {
 }
 
 SERVER_EMAIL = env('CONTACT_EMAIL', default=None)
-DEFAULT_FROM_EMAIL = 'rquin@billmoretech.com'
-ADMINS = [('Your Name', 'rquin@billmoretech.com'),]
+DEFAULT_FROM_EMAIL = env('CONTACT_EMAIL', default=None)
+ADMINS = [('Your Name', env('CONTACT_EMAIL', default=None)),]
 
 
 # Application definition
@@ -364,7 +364,7 @@ PROJECT_METADATA = {
 
 USE_HTTPS_IN_ABSOLUTE_URLS = False  # set this to True in production to have URLs generated with https instead of http
 
-ADMINS = [('bmt', 'rquin@billmoretech.com')]
+ADMINS = [('bmt', env('CONTACT_EMAIL', default=None))]
 
 # Add your google analytics ID to the environment or default value to connect to Google Analytics
 GOOGLE_ANALYTICS_ID = env('GOOGLE_ANALYTICS_ID', default='')
