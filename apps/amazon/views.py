@@ -11,11 +11,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 from django.contrib.staticfiles.storage import staticfiles_storage
 
-from .functions import get_reviews, save_reviews, asin_gpt_data, prompts
+from .functions import asin_gpt_data, prompts, rate_limiter
 from .models import ReviewsAnalyzed
 
 from .tasks import prep_all_gpt_data
-
 
 def main(request, team_slug):
     if request.user.is_authenticated:
@@ -26,9 +25,10 @@ def main(request, team_slug):
         if request.method == 'POST' and 'search-asin' in request.POST:
             print('search-asin')
             asin = request.POST.get('search-asin')
-            print(asin)
 
-            prep_all_gpt_data(user, asin)
+            #Rate limit them to 100 asins per month
+            if rate_limiter(user, 100):
+                prep_all_gpt_data(user, asin)
 
         if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
             asin = request.POST.get('retrieve-asin-data-1')

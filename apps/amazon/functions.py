@@ -249,3 +249,13 @@ def store_reviews(user, asin, page_range):
     for pg_num in page_range:
         reviews = get_reviews(asin, pg_num)
         save_reviews(user, asin, pg_num, reviews)
+
+def rate_limiter(user, asin_limit):
+    now = datetime.now()
+    current_month = now.month
+    current_year = now.year
+
+    all_user_asins = ReviewsAnalyzed.objects.filter(USER=user, QUERY_DATE__year=current_year, QUERY_DATE__month=current_month).values('ASIN').distinct()
+    all_user_asins = [x['ASIN'] for x in list(all_user_asins)]
+
+    return len(all_user_asins) < asin_limit
