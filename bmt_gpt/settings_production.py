@@ -43,7 +43,7 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN', default=None),
 }
 
-SERVER_EMAIL = 'noreply@localhost:8000'
+SERVER_EMAIL = env('CONTACT_EMAIL', default=None)
 DEFAULT_FROM_EMAIL = 'rquin@billmoretech.com'
 ADMINS = [('Your Name', 'rquin@billmoretech.com'),]
 
