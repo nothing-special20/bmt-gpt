@@ -33,3 +33,14 @@ def google_analytics_id(request):
         }
     else:
         return {}
+
+def microsoft_clarity_id(request):
+    """
+    Adds microsoft clarity id to all requests
+    """
+    if settings.MICROSOFT_CLARITY:
+        return {
+            'MICROSOFT_CLARITY': settings.MICROSOFT_CLARITY,
+        }
+    else:
+        return {}

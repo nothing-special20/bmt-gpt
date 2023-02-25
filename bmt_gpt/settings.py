@@ -130,6 +130,7 @@ TEMPLATES = [
                 'apps.teams.context_processors.team',
                  # this line can be removed if not using google analytics
                 'apps.web.context_processors.google_analytics_id',
+                'apps.web.context_processors.microsoft_clarity_id',
             ],
         },
     },
@@ -352,6 +353,8 @@ ADMINS = [('bmt', 'rquin@billmoretech.com')]
 
 # Add your google analytics ID to the environment or default value to connect to Google Analytics
 GOOGLE_ANALYTICS_ID = env('GOOGLE_ANALYTICS_ID', default='')
+
+MICROSOFT_CLARITY = env('MICROSOFT_CLARITY', default='')
 
 
 # Stripe config
