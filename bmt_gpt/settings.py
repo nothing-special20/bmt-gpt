@@ -131,6 +131,7 @@ TEMPLATES = [
                  # this line can be removed if not using google analytics
                 'apps.web.context_processors.google_analytics_id',
                 'apps.web.context_processors.microsoft_clarity_id',
+                'apps.web.context_processors.crisp_chat_id',
             ],
         },
     },
@@ -356,6 +357,7 @@ GOOGLE_ANALYTICS_ID = env('GOOGLE_ANALYTICS_ID', default='')
 
 MICROSOFT_CLARITY = env('MICROSOFT_CLARITY', default='')
 
+CRISP_ID = os.environ.get('CRISP_ID', '')
 
 # Stripe config
 
