@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from apps.teams.decorators import login_and_team_required
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 from django.conf import settings
 
@@ -24,6 +25,7 @@ def home(request):
 
 
 @login_and_team_required
+@xframe_options_exempt
 def team_home(request, team_slug):
     assert request.team.slug == team_slug
     return render(request, 'web/app_home.html', context={
