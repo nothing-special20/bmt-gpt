@@ -344,7 +344,7 @@ PROJECT_METADATA = {
     'DESCRIPTION': gettext_lazy('Use GPT to analyze your reviews to improve your Amazon Listing'),
     'IMAGE': 'https://upload.wikimedia.org/wikipedia/commons/2/20/PEO-pegasus_black.svg',
     'KEYWORDS': 'SaaS, django',
-    'CONTACT_EMAIL': 'rquin@billmoretech.com',
+    'CONTACT_EMAIL': env('CONTACT_EMAIL', default=''),
     'LOOM_DEMO_URL': env('LOOM_DEMO_URL', default=''),
 }
 
