@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.teams.decorators import login_and_team_required
 
+from django.conf import settings
 
 def home(request):
     if request.user.is_authenticated:
@@ -29,6 +30,7 @@ def team_home(request, team_slug):
         'team': request.team,
         'active_tab': 'dashboard',
         'page_title': _('{team} Dashboard').format(team=request.team),
+        'loom_demo_url': settings.PROJECT_METADATA['LOOM_DEMO_URL']
     })
 
 

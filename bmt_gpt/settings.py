@@ -343,6 +343,7 @@ PROJECT_METADATA = {
     'IMAGE': 'https://upload.wikimedia.org/wikipedia/commons/2/20/PEO-pegasus_black.svg',
     'KEYWORDS': 'SaaS, django',
     'CONTACT_EMAIL': 'rquin@billmoretech.com',
+    'LOOM_DEMO_URL': env('LOOM_DEMO_URL', default=''),
 }
 
 USE_HTTPS_IN_ABSOLUTE_URLS = False  # set this to True in production to have URLs generated with https instead of http
