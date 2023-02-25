@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,7 +29,11 @@
                     <h3>Amazon + Chat GPT</h3>
                     <p>Get Competitive Intel, Faster</p>
                 </div>
+                <a class="dropdown-item" style="width:20rem; font-size:20px;" href="{% url 'users:user_profile' %}" >
+                    {% translate "My Profile" %}
+                </a>
             </div>
+            
         </div>
     </div>
     <div class="section blog-section">{% comment %} style="max-height:450px; overflow:auto;" {% endcomment %}
@@ -36,13 +41,15 @@
             <div class="">
                 <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
                     {% csrf_token %}
+                    <label style="font-weight:bold;">Get New ASIN Data</label>
+                    <br><br>
                     <div class="columns" style="width:60rem;">
-                        <div class="form-group column">
-                            <label>Get New ASIN Data</label>
-                            <input type="text" class="form-control" name="search-asin" placeholder="Enter ASIN">
+                        
+                        <div class="form-group">
+                            <input type="text" class="form-control darken-placeholder" name="search-asin" placeholder="Enter ASIN" style="min-height:50px;">
                         </div>
-                        <div class="search-button btn-lg column" style="margin-top:-5px;">
-                            <button type="submit" class="button primary-btn is-bold" style="min-width:150px; min-height:10px;">Search</button>
+                        <div class="search-button btn-lg column" style="margin-top:-10px;">
+                            <button type="submit" class="dropbtn" style="min-width:150px; min-height:10px;">Search</button>
                         </div>
                     </div>
                 </form>

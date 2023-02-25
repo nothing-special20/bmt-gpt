@@ -3,19 +3,13 @@
     <link rel="stylesheet" href="{% static "css/custom.css" %}">
 </head>
 <div style="margin-left:20px;">
-    <h3 style="font-weight:bold;">Compare Products</h3>
+    <h3 style="font-weight:bold;">Compare ASIN Data</h3>
     
     <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
         {% csrf_token %}
         <div class="columns" style="width:70rem;">
             <div class="form-group column">
-                <label>Compare ASIN Data</label>
-                {% comment %} <select class="form-select" name="retrieve-asin-data">
-                    <option selected>Select ASIN</option>
-                    {% for asin in asin_list %}
-                        <option value="{{ asin }}">{{ asin }}</option>
-                    {% endfor %}
-                </select> {% endcomment %}
+                <br>
                 <div class="dropdown">
                     <button onclick="dropdownSearch('myDropdownOne')" class="dropbtn" type="button" id="asin-btn-1">Select ASIN 1</button>
                     <div id="myDropdownOne" class="dropdown-content">
@@ -34,10 +28,11 @@
                         {% endfor %}
                     </div>
                 </div> 
+                <div class="search-button row btn-lg column" style="margin-top:-10px; position: relative; display: inline-block;">
+                    <button type="submit" class="dropbtn" style="min-width:150px; min-height:10px;">Compare</button>
+                </div>
             </div>
-            <div class="search-button row btn-lg column" style="margin-top:-5px;">
-                <button type="submit" class="button primary-btn is-bold" style="min-width:150px; min-height:10px;">Compare</button>
-            </div>
+            
         </div>
     </form>
 </div>
