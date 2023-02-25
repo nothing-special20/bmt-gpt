@@ -1,7 +1,4 @@
-# from .settings import *
-import os
-import environ
-env = environ.Env()
+from .settings import *
 
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
@@ -33,22 +30,6 @@ ALLOWED_HOSTS = [
     'localhost',
 ]
 
-
-
-# Your email config goes here.
-# see https://github.com/anymail/django-anymail for more details / examples
-# To use mailgun, comment out the lines below and make sure your key and domain
-# are available in the environment.
-# EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
-
-ANYMAIL = {
-    "MAILGUN_API_KEY": env('MAILGUN_API_KEY', default=None),
-    "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN', default=None),
-}
-
-SERVER_EMAIL = env('CONTACT_EMAIL', default=None)
-DEFAULT_FROM_EMAIL = 'rquin@billmoretech.com'
-ADMINS = [('Your Name', 'rquin@billmoretech.com'),]
 
 # Mailchimp setup
 

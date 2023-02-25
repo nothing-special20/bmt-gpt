@@ -17,9 +17,6 @@ from pathlib import Path
 
 from django.utils.translation import gettext_lazy
 
-from settings_production import *
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -40,6 +37,21 @@ ALLOWED_HOSTS = [
     'www.jungleinsightz.com',
     'localhost',
 ]
+
+# Your email config goes here.
+# see https://github.com/anymail/django-anymail for more details / examples
+# To use mailgun, comment out the lines below and make sure your key and domain
+# are available in the environment.
+# EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
+
+ANYMAIL = {
+    "MAILGUN_API_KEY": env('MAILGUN_API_KEY', default=None),
+    "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN', default=None),
+}
+
+SERVER_EMAIL = env('CONTACT_EMAIL', default=None)
+DEFAULT_FROM_EMAIL = 'rquin@billmoretech.com'
+ADMINS = [('Your Name', 'rquin@billmoretech.com'),]
 
 
 # Application definition
