@@ -207,7 +207,7 @@ ACCOUNT_FORMS = {
 
 # User signup configuration: change to "mandatory" to require users to confirm email before signing in.
 # or "optional" to send confirmation emails but not require them
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
 ALLAUTH_2FA_ALWAYS_REVEAL_BACKUP_TOKENS = False
 
