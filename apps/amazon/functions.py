@@ -26,9 +26,9 @@ OPEN_AI_KEY = env('OPEN_AI_KEY', default='')
 
 os.environ['OPENAI_API_KEY'] = OPEN_AI_KEY
 
-like_partial_prompt = "From the following reviews, Write the Top 5 things people like about the product, each review is separated by a semicolon: "
-dislike_partial_prompt = "From the following reviews, Write the Top 5 things people dislike about the product, each review is separated by a semicolon: "
-description_partial_prompt = "From the following reviews, Write the Top 5 phrases people used to describe the product, each review is separated by a semicolon: "
+like_partial_prompt = "From the following reviews, Write the Top 10 things people like about the product, each review is separated by a semicolon: "
+dislike_partial_prompt = "From the following reviews, Write the Top 10 things people dislike about the product, each review is separated by a semicolon: "
+description_partial_prompt = "From the following reviews, Write the Top 10 phrases people used to describe the product, each review is separated by a semicolon: "
 
 prompts = {
     'dislike_partial_prompt': dislike_partial_prompt,
@@ -122,7 +122,7 @@ def open_ai_summarize_text(prompt, engine, max_tokens):
 
     return response
 
-def agg_reviews_for_gpt(user, asin):
+def agg_reviews_for_gpt(user, asin, review_rating=None):
     all_reviews = []
 
     data_list = ProductReviews.objects.filter(USER=user, ASIN=asin).values('RESPONSE').distinct()
@@ -131,7 +131,8 @@ def agg_reviews_for_gpt(user, asin):
     for ten_ct in data_list:
         try:
             for x in ten_ct['result']:
-                all_reviews.append(x['review'])
+                if review_rating is None or x['rating'] in review_rating:
+                    all_reviews.append(x['review'])
         except:
             pass
         
@@ -140,7 +141,7 @@ def agg_reviews_for_gpt(user, asin):
     all_str = ''
 
     for x in all_reviews:
-        if len(all_str + x) < 2000:
+        if len(all_str + x) < 4000:
             all_str += ';'
             all_str += x
         else:
@@ -200,17 +201,17 @@ def asin_gpt_data(user, asin, prompts):
     # print(json.dumps(product_details, indent=4))
 
     disliked_reviews = [x['GPT_RESPONSE'] for x in retrived_asin_data if x['PROMPT'] == prompts['dislike_partial_prompt']][0]
-    disliked_reviews = re.sub('-|:|[0-9]\\.', ';' , disliked_reviews)
+    disliked_reviews = re.sub('-|:|[0-9]{1,2}\\.', ';' , disliked_reviews)
     disliked_reviews = disliked_reviews.split(';')
     disliked_reviews = list(set(disliked_reviews))
 
     liked_reviews = [x['GPT_RESPONSE'] for x in retrived_asin_data if x['PROMPT'] == prompts['like_partial_prompt']][0]
-    liked_reviews = re.sub('-|:|[0-9]\\.', ';' , liked_reviews)
+    liked_reviews = re.sub('-|:|[0-9]{1,2}\\.', ';' , liked_reviews)
     liked_reviews = liked_reviews.split(';')
     liked_reviews = list(set(liked_reviews))
 
     description_reviews = [x['GPT_RESPONSE'] for x in retrived_asin_data if x['PROMPT'] == prompts['description_partial_prompt']][0]
-    description_reviews = re.sub('-|:|[0-9]\\.', ';' , description_reviews)
+    description_reviews = re.sub('-|:|[0-9]{1,2}\\.', ';' , description_reviews)
     description_reviews = description_reviews.split(';')
     description_reviews = list(set(description_reviews))
 
@@ -224,17 +225,23 @@ def asin_gpt_data(user, asin, prompts):
     }
 
 def store_gpt_results(user, asin, prompts):
-    agg_reviews = agg_reviews_for_gpt(user, asin)
+    good_reviews = agg_reviews_for_gpt(user, asin, [4, 5])
+    bad_reviews = agg_reviews_for_gpt(user, asin, [1, 2, 3])
+    all_reviews = agg_reviews_for_gpt(user, asin)
 
-    likes = gpt_analyze_reviews(agg_reviews, asin, prompts['like_partial_prompt'])
+    print('good_reviews', len(good_reviews))
+    print('bad_reviews', len(bad_reviews))
+    print('all_reviews', len(all_reviews))
+
+    likes = gpt_analyze_reviews(good_reviews, asin, prompts['like_partial_prompt'])
 
     save_gpt_results(user, asin, prompts['like_partial_prompt'], likes)
 
-    dislikes = gpt_analyze_reviews(agg_reviews, asin, prompts['dislike_partial_prompt'])
+    dislikes = gpt_analyze_reviews(bad_reviews, asin, prompts['dislike_partial_prompt'])
     
     save_gpt_results(user, asin, prompts['dislike_partial_prompt'], dislikes)
     
-    descriptions = gpt_analyze_reviews(agg_reviews, asin, prompts['description_partial_prompt'])
+    descriptions = gpt_analyze_reviews(all_reviews, asin, prompts['description_partial_prompt'])
 
     save_gpt_results(user, asin, prompts['description_partial_prompt'], descriptions)
     

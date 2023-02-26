@@ -17,7 +17,7 @@ def prep_all_gpt_data(user, asin):
 
     total_reviews = json.loads(product_detail)['result'][0]['reviews']['total_reviews']
 
-    max_page = min(math.ceil(total_reviews / 10), 16)
+    max_page = min(math.ceil(total_reviews / 10), 50)
     
     num_processes = min(max_page, 6)
     sublists = split_list_into_sublists(range(1, max_page + 1), num_processes)
