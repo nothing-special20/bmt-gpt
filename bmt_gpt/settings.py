@@ -38,6 +38,9 @@ ALLOWED_HOSTS = [
     'localhost',
 ]
 
+# Number of Parallel Processors Allowed
+NUM_PARALLEL_PROCESSORS = env('NUM_PARALLEL_PROCESSORS', default=4)
+
 # Your email config goes here.
 # see https://github.com/anymail/django-anymail for more details / examples
 # To use mailgun, comment out the lines below and make sure your key and domain
