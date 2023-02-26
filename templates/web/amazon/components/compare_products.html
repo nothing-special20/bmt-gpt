@@ -14,7 +14,7 @@
                     <button onclick="dropdownSearch('myDropdownOne')" class="dropbtn" type="button" id="asin-btn-1">Select ASIN 1</button>
                     <div id="myDropdownOne" class="dropdown-content">
                         <input type="text" placeholder="Search.." id="myInputOne" onkeyup="filterFunction('myInputOne', 'myDropdownOne', 'asin-dropdown-1')" name="retrieve-asin-data-1">
-                        {% for asin in asin_list %}
+                        {% for asin in analyzed_asin_list %}
                             <button value="{{ asin }}" class="asin-dropdown-1" onClick="changeValue('myInputOne', 'myDropdownOne', 'asin-btn-1', '{{ asin }}')" type="button">{{ asin }}</button>
                         {% endfor %}
                     </div>
@@ -23,7 +23,7 @@
                     <button onclick="dropdownSearch('myDropdownTwo')" class="dropbtn" type="button" id="asin-btn-2">Select ASIN 2</button>
                     <div id="myDropdownTwo" class="dropdown-content">
                         <input type="text" placeholder="Search.." id="myInputTwo" onkeyup="filterFunction('myInputTwo', 'myDropdownTwo', 'asin-dropdown-2')" name="retrieve-asin-data-2">
-                        {% for asin in asin_list %}
+                        {% for asin in analyzed_asin_list %}
                             <button value="{{ asin }}" class="asin-dropdown-2" onClick="changeValue('myInputTwo', 'myDropdownTwo', 'asin-btn-2', '{{ asin }}')" type="button">{{ asin }}</button>
                         {% endfor %}
                     </div>

@@ -19,16 +19,20 @@ from .tasks import prep_all_gpt_data
 def main(request, team_slug):
     if request.user.is_authenticated:
         user = request.user.username
-        asin_list = ReviewsAnalyzed.objects.filter(USER=user).values('ASIN').distinct()
-        asin_list = [x['ASIN'] for x in asin_list]
+        analyzed_asin_list = ReviewsAnalyzed.objects.filter(USER=user).values('ASIN').distinct()
+        analyzed_asin_list = [x['ASIN'] for x in analyzed_asin_list]
 
         if request.method == 'POST' and 'search-asin' in request.POST:
             print('search-asin')
-            asin = request.POST.get('search-asin')
+            asin_list = request.POST.get('search-asin')
+            if ';' in asin_list:
+                asin_list = asin_list.split(';')
+            else:
+                asin_list = [asin_list]
 
             #Rate limit them to 100 asins per month
             if rate_limiter(user, 100):
-                prep_all_gpt_data(user, asin)
+                prep_all_gpt_data(user, asin_list)
 
         if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
             asin = request.POST.get('retrieve-asin-data-1')
@@ -42,13 +46,13 @@ def main(request, team_slug):
                 asin_two_data = {}
 
             return render(request, 'web/amazon/amazon_demo.html', {
-                'asin_list': asin_list,
+                'analyzed_asin_list': analyzed_asin_list,
                 'asin_one_data': asin_one_data,
                 'asin_two_data': asin_two_data,
             })
 
         return render(request, 'web/amazon/amazon_demo.html', {
-            'asin_list': asin_list,
+            'analyzed_asin_list': analyzed_asin_list,
         })
     else:
         return render(request, 'web/landing_page.html')
