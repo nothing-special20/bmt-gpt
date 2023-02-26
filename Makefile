@@ -61,3 +61,14 @@ upgrade: build start-bg migrations migrate
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+update-containers:
+	echo ~~~puling latest code from git~~~
+	git pull
+	echo ~~~taking down docker containers~~~
+	docker-compose down
+	echo ~~~rebuilding docker containers~~~
+	docker-compose build
+	echo ~~~starting docker containers~~~
+	docker-compose up -d
+	echo ~~~removing unneeded files from ccontainers~~~
