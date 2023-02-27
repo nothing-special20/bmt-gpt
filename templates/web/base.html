@@ -1,5 +1,6 @@
 {% load static %}
 {% load meta_tags %}
+{% load facebook_pixel %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,6 +52,7 @@
     <script src="{% url 'javascript-catalog' %}"></script>
     {% block page_head %}
     {% endblock %}
+    {% facebook_pixel_head %}
 </head>
 <body>
 {% block body_wrapper %}
@@ -70,5 +72,6 @@
 {% endblock page_js %}
   {% include 'web/components/messages-js.html' %}
   <script src="{% static 'js/site-bootstrap-bundle.js' %}"></script>
+  {% facebook_pixel_body %}
 </body>
 </html>

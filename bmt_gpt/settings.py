@@ -376,6 +376,8 @@ MICROSOFT_CLARITY = env('MICROSOFT_CLARITY', default='')
 
 CRISP_ID = os.environ.get('CRISP_ID', '')
 
+FACEBOOK_PIXEL_ID = os.environ.get('FACEBOOK_PIXEL_ID', '')
+
 # Stripe config
 
 # modeled to be the same as https://github.com/dj-stripe/dj-stripe
