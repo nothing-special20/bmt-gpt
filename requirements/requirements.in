@@ -21,3 +21,4 @@ debugpy
 gpt_index
 channels
 openai
+django-analytical

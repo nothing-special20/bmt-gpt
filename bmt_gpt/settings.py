@@ -90,6 +90,7 @@ THIRD_PARTY_APPS = [
     'hijack.contrib.admin',  # hijack buttons in the admin
     'djstripe',  # stripe integration
     'waffle',
+    'analytical',
 ]
 
 PEGASUS_APPS = [
@@ -376,7 +377,7 @@ MICROSOFT_CLARITY = env('MICROSOFT_CLARITY', default='')
 
 CRISP_ID = os.environ.get('CRISP_ID', '')
 
-FACEBOOK_PIXEL_ID = os.environ.get('FACEBOOK_PIXEL_ID', '')
+FACEBOOK_PIXEL_ID = os.environ.get('FACEBOOK_PIXEL_ID', None)
 
 # Stripe config
 
