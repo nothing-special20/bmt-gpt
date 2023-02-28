@@ -20,10 +20,10 @@
           {% render_text_input form.team_name %}
         {% endif %}
         <input class="btn btn-primary w-100" type="submit" value="Sign Up">
-        <p class="text-center mt-2">or</p>
+        {% comment %} <p class="text-center mt-2">or</p>
         {% include 'account/components/social/login_with_google_button.html' %}
         <p class="text-center mt-2">or</p>
-        {% include 'account/components/social/login_with_twitter_button.html' %}
+        {% include 'account/components/social/login_with_twitter_button.html' %} {% endcomment %}
         <hr>
         <div class="has-text-grey">
           Already have account?

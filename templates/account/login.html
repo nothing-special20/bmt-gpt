@@ -12,10 +12,10 @@
         {% render_text_input form.login %}
         {% render_text_input form.password %}
         <input class="btn btn-primary w-100" type="submit" value="{% translate "Sign In" %}">
-        <p class="text-center mt-2">{% translate "or" %}</p>
+        {% comment %} <p class="text-center mt-2">{% translate "or" %}</p>
         {% include 'account/components/social/login_with_google_button.html' %}
         <p class="text-center mt-2">{% translate "or" %}</p>
-        {% include 'account/components/social/login_with_twitter_button.html' %}
+        {% include 'account/components/social/login_with_twitter_button.html' %} {% endcomment %}
         <hr>
         <a class="muted-link" href="{% url 'account_reset_password' %}">
           {% translate "Forgot password?" %}
