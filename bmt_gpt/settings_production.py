@@ -25,8 +25,7 @@ CSRF_COOKIE_SECURE = True
 USE_HTTPS_IN_ABSOLUTE_URLS = True
 
 ALLOWED_HOSTS = [
-    'jungleinsightz.com',
-    'www.jungleinsightz.com',
+    *env("VIRTUAL_HOST", default="").split(","),
     'localhost',
 ]
 

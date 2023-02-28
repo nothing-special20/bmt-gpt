@@ -32,9 +32,9 @@ SECRET_KEY = env('SECRET_KEY', default='SZgSLJMuMqtwQLbgidgkKdtOeboEdPfVMIxxzzWC
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
+
 ALLOWED_HOSTS = [
-    'jungleinsightz.com',
-    'www.jungleinsightz.com',
+    *env("VIRTUAL_HOST", default="").split(","),
     'localhost',
 ]
 
