@@ -357,7 +357,7 @@ WAFFLE_FLAG_MODEL = 'teams.Flag'
 # replace any values below with specifics for your project
 PROJECT_METADATA = {
     'NAME': "Neptune Five - GPT for Amazon Sellers",
-    'URL': 'http://www.jungleinsightz.com',
+    'URL': 'http://' + env("VIRTUAL_HOST", default="").split(",")[0],
     'DESCRIPTION': gettext_lazy('Use GPT to analyze your reviews to improve your Amazon Listing'),
     'IMAGE': 'https://upload.wikimedia.org/wikipedia/commons/2/20/PEO-pegasus_black.svg',
     'KEYWORDS': 'SaaS, django',
