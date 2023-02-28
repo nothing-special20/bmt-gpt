@@ -55,3 +55,14 @@ def crisp_chat_id(request):
         }
     else:
         return {}
+    
+def facebook_pixel_id(request):
+    """
+    Adds the facebook pixel id to all requests
+    """
+    if settings.FACEBOOK_PIXEL_ID:
+        return {
+            'FACEBOOK_PIXEL': settings.FACEBOOK_PIXEL_ID,
+        }
+    else:
+        return {}

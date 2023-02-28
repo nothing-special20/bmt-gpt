@@ -150,6 +150,7 @@ TEMPLATES = [
                 'apps.web.context_processors.google_analytics_id',
                 'apps.web.context_processors.microsoft_clarity_id',
                 'apps.web.context_processors.crisp_chat_id',
+                'apps.web.context_processors.facebook_pixel_id',
             ],
         },
     },
