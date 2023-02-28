@@ -322,7 +322,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Jungle Insightz',
+    'TITLE': 'Neptune Five',
     'DESCRIPTION': 'Use GPT to analyze your reviews to improve your Amazon Listing',
     'VERSION': '0.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
@@ -356,7 +356,7 @@ WAFFLE_FLAG_MODEL = 'teams.Flag'
 
 # replace any values below with specifics for your project
 PROJECT_METADATA = {
-    'NAME': "Jungle Insightz - GPT for Amazon Sellers",
+    'NAME': "Neptune Five - GPT for Amazon Sellers",
     'URL': 'http://www.jungleinsightz.com',
     'DESCRIPTION': gettext_lazy('Use GPT to analyze your reviews to improve your Amazon Listing'),
     'IMAGE': 'https://upload.wikimedia.org/wikipedia/commons/2/20/PEO-pegasus_black.svg',
