@@ -40,7 +40,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: celery -A bmt_gpt worker -l INFO --beat --concurrency 2
+    command: celery -A bmt_gpt worker -l INFO --beat --concurrency=6
     volumes:
       - .:/code
     env_file:

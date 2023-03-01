@@ -36,7 +36,7 @@ def main(request, team_slug):
 
             #Rate limit them to 20 asins per month
             if rate_limiter(user, 20):
-                prep_all_gpt_data(user, asin_list)
+                prep_all_gpt_data.delay(user, asin_list)
 
         if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
             asin = request.POST.get('retrieve-asin-data-1')

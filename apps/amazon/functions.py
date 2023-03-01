@@ -309,10 +309,6 @@ def split_list_into_sublists(list_to_split, number_of_sublists):
     length_of_sublist = len(list_to_split) // number_of_sublists
     return [list_to_split[i:i+length_of_sublist] for i in range(0, len(list_to_split), length_of_sublist)]
 
-def store_reviews(user, asin, page_range):
-    for pg_num in page_range:
-        reviews = get_reviews(asin, pg_num)
-        save_reviews(user, asin, pg_num, reviews)
 
 def rate_limiter(user, asin_limit):
     now = datetime.now()

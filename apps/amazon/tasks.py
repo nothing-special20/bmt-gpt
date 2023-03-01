@@ -1,14 +1,20 @@
 from django.conf import settings
 from celery import Celery
+from celery import group
 # from django.core.management import call_command
 import multiprocessing
 from itertools import repeat
 import math
 import json
 
-from .functions import get_single_product_detail, save_product_detail, store_gpt_results, split_list_into_sublists, store_reviews, prompts
+from .functions import get_single_product_detail, save_product_detail, store_gpt_results, split_list_into_sublists, prompts, get_reviews, save_reviews
 
 app = Celery('tasks', broker=settings.CELERY_BROKER_URL)
+
+@app.task
+def store_reviews(user, asin, pg_num):
+    reviews = get_reviews(asin, pg_num)
+    save_reviews(user, asin, pg_num, reviews)
 
 @app.task
 def prep_all_gpt_data(user, asin_list):
@@ -21,9 +27,8 @@ def prep_all_gpt_data(user, asin_list):
 
         max_page = min(math.ceil(total_reviews / 10), 50)
         
-        num_processes = min(settings.NUM_PARALLEL_PROCESSORS, max_page)
-        sublists = split_list_into_sublists(range(1, max_page + 1), num_processes)
-        pool = multiprocessing.Pool(processes=num_processes)
-        pool.starmap(store_reviews, zip(repeat(user), repeat(asin), sublists))
+        job_list = group([store_reviews.subtask((user, asin, pg_num)) for pg_num in range(1, max_page + 1)])
+        
+        job_list.apply()
 
     store_gpt_results(user, asin_list, prompts)
