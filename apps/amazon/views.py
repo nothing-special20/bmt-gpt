@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 # from .functions import interpret_text, read_word_doc
 # from .models import DocQueries, IndexQueries
 # from django.templatetags.static import static
+import re
 
 from django.conf import settings
 from pathlib import Path
@@ -25,6 +26,9 @@ def main(request, team_slug):
         if request.method == 'POST' and 'search-asin' in request.POST:
             print('search-asin')
             asin_list = request.POST.get('search-asin')
+            asin_list = re.sub(',', ';', asin_list)
+            asin_list = re.sub(' ', '', asin_list)
+
             if ';' in asin_list:
                 asin_list = asin_list.split(';')
             else:

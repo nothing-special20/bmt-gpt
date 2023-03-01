@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static "css/bulma.css" %}">
     <link rel="stylesheet" href="{% static "css/app.css" %}">
+    <link rel="stylesheet" href="{% static "css/custom.css" %}">
     <link id="theme-sheet" rel="stylesheet" href="{% static "css/core.css" %}">
 
 </head>
@@ -46,7 +47,7 @@
                     <div class="columns" style="width:60rem;">
                         
                         <div class="form-group">
-                            <input type="text" class="form-control darken-placeholder" name="search-asin" placeholder="Enter ASIN" style="min-height:50px;">
+                            <input type="text" class="form-control darken-placeholder" name="search-asin" placeholder="Enter ASIN" style="min-height:50px;margin-left:10px;">
                         </div>
                         <div class="search-button btn-lg column" style="margin-top:-10px;">
                             <button type="submit" class="dropbtn" style="min-width:150px; min-height:10px;">Search</button>
@@ -54,11 +55,31 @@
                     </div>
                 </form>
             </div>
+            <p>
+                You can add one ASIN or multiple. To add multiple ASINs, separate them with a comma or semicolon.
+                <br>
+                <strong>Note:</strong> the multiple ASINs will be evaluated as a group, so the analysis will be based on the combined reviews.
+                <br>
+                If you wish to evaluate individual ASINs, please add them individually.
+            </p>
         </div>
     </div>
     <!-- Hero image -->
     {% include "web/amazon/components/compare_products.html" %}
     <br><br>
+    <div>
+        <p style="margin-left:20px;">
+            Click Select ASIN 1 or 2, then click on your ASIN to select which review insights you will see.
+            <br>
+            If you do not see your ASIN, please type it into the search bar and click it when you find it.
+            <br>
+            When you select an ASIN, the "Select ASIN 1 or 2" text will be replaced with the ASIN.
+            <br>
+            If you analyzed a group of ASINs together, you will see those ASINs as a long string separated by semicolons.
+            <br>
+            After you have selected your ASINs, click the Compare button to see the review insights.
+        </p>
+    </div>
     <div class="columns">
         <div class="column">
             {% include "web/amazon/components/product_eval_component.html" with asin_details=asin_one_data %}
