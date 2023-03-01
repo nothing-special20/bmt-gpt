@@ -2,7 +2,12 @@ import os
 from celery import Celery
 
 # set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bmt_gpt.settings')
+debug_status = os.getenv('DEBUG', 'False') == 'True'
+#debugging only happens locally, so if debug is true, then use settings, otherwise use prod settings
+if debug_status:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bmt_gpt.settings')
+else:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bmt_gpt.settings_production')
 
 app = Celery('bmt_gpt')
 
