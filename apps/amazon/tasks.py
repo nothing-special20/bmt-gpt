@@ -21,7 +21,7 @@ def prep_all_gpt_data(user, asin_list):
 
         max_page = min(math.ceil(total_reviews / 10), 50)
         
-        num_processes = settings.NUM_PARALLEL_PROCESSORS
+        num_processes = min(settings.NUM_PARALLEL_PROCESSORS, max_page)
         sublists = split_list_into_sublists(range(1, max_page + 1), num_processes)
         pool = multiprocessing.Pool(processes=num_processes)
         pool.starmap(store_reviews, zip(repeat(user), repeat(asin), sublists))
