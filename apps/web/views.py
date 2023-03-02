@@ -38,3 +38,6 @@ def team_home(request, team_slug):
 
 def simulate_error(request):
     raise Exception('This is a simulated error.')
+
+def privacy_policy(request):
+    return render(request, 'web/privacy_policy.html')
