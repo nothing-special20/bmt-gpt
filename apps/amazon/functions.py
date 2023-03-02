@@ -136,7 +136,7 @@ def asin_review_list(user, asin, review_rating):
     for ten_ct in data_list:
         try:
             for x in ten_ct['result']:
-                if review_rating is None or x['rating'] in review_rating:
+                if x['verified_purchase'] == True and (review_rating is None or x['rating'] in review_rating):
                     all_reviews.append(x['review'])
         except:
             pass
@@ -190,7 +190,8 @@ def agg_reviews_for_gpt(user, asin_list, review_rating=None):
 def gpt_analyze_reviews(agg_reviews, asin, partial_prompt):
     asin = ';'.join(asin)
     prompt = '{}"{}"'.format(partial_prompt, agg_reviews)
-    x = open_ai_summarize_text(prompt, engine='text-davinci-003', max_tokens=1500)
+    # x = open_ai_summarize_text(prompt, engine='text-davinci-003', max_tokens=1500)
+    x = open_ai_summarize_text(prompt, engine='gpt-3.5-turbo', max_tokens=1500)
     # x = open_ai_summarize_text(prompt, engine='text-curie-001', max_tokens=400)
 
     x = json.loads(json.dumps(x))
