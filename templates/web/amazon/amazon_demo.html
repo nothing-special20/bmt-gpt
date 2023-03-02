@@ -19,6 +19,9 @@
     <link rel="stylesheet" href="{% static "css/custom.css" %}">
     <link id="theme-sheet" rel="stylesheet" href="{% static "css/core.css" %}">
 
+    {% if MICROSOFT_CLARITY %}
+        {% include 'web/components/microsoft_clarity.html' %}
+    {% endif %}
 </head>
 
 <body class="is-theme-core">   
