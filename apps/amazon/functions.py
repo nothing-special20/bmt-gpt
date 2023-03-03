@@ -109,18 +109,13 @@ openai.api_key = OPEN_AI_KEY
 
 # Define the prompts
 
-def open_ai_summarize_text(prompt, engine, max_tokens):
-    response = openai.Completion.create(
-        # engine="ada",
-        # engine="text-davinci-002",
-        # engine="babbage",
-        # engine="curie",
-        engine=engine,
-        prompt=prompt,
+def open_ai_summarize_text(prompt, max_tokens):
+    response = openai.ChatCompletion.create(
+        model='gpt-3.5-turbo',
+        messages=[{"role": "user", "content": prompt}],
         max_tokens=max_tokens,
-        n = 3,
+        n = 1,
         stop=None,
-        # temperature=0.5,
         temperature=0.5,
     )
 
@@ -190,13 +185,12 @@ def agg_reviews_for_gpt(user, asin_list, review_rating=None):
 def gpt_analyze_reviews(agg_reviews, asin, partial_prompt):
     asin = ';'.join(asin)
     prompt = '{}"{}"'.format(partial_prompt, agg_reviews)
-    # x = open_ai_summarize_text(prompt, engine='text-davinci-003', max_tokens=1500)
-    x = open_ai_summarize_text(prompt, engine='gpt-3.5-turbo', max_tokens=1500)
-    # x = open_ai_summarize_text(prompt, engine='text-curie-001', max_tokens=400)
+    x = open_ai_summarize_text(prompt, max_tokens=1500)
 
     x = json.loads(json.dumps(x))
 
-    results = re.sub('\n', '', str(x['choices'][0]['text']))
+    results = str(x['choices'][0]['message']['content'])
+    results = re.sub('\n', '', results)
     completion_tokens = str(x['usage']['completion_tokens'])
     prompt_tokens = str(x['usage']['prompt_tokens'])
 
