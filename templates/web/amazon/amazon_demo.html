@@ -40,34 +40,7 @@
             
         </div>
     </div>
-    <div class="section blog-section">{% comment %} style="max-height:450px; overflow:auto;" {% endcomment %}
-        <div>
-            <div class="">
-                <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px">
-                    {% csrf_token %}
-                    <label style="font-weight:bold;">Get New ASIN Data</label>
-                    <br><br>
-                    <div class="columns" style="width:60rem;">
-                        
-                        <div class="form-group">
-                            <input type="text" class="form-control darken-placeholder" name="search-asin" placeholder="Enter ASIN" style="min-height:50px;margin-left:10px;">
-                        </div>
-                        <div class="search-button btn-lg column" style="margin-top:-10px;">
-                            <button type="submit" class="dropbtn" style="min-width:150px; min-height:10px;">Search</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <p>
-                You can add one ASIN or multiple. To add multiple ASINs, separate them with a comma or semicolon.
-                <br>
-                <strong>Note:</strong> the multiple ASINs will be evaluated as a group, so the analysis will be based on the combined reviews.
-                <br>
-                If you wish to evaluate individual ASINs, please add them individually.
-            </p>
-        </div>
-    </div>
-    <!-- Hero image -->
+    {% include "web/amazon/components/asin_search.html" %}
     {% include "web/amazon/components/compare_products.html" %}
     <br><br>
     <div>

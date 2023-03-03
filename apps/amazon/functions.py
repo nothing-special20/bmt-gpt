@@ -76,6 +76,23 @@ def get_single_product_detail(asin):
 
     return response.text
 
+def get_keyword_details(keyword):
+    url = 'https://amazon23.p.rapidapi.com/product-search'
+
+    querystring = {
+        "query": keyword, 
+        "country": "US"
+        }
+
+    headers = {
+        "X-RapidAPI-Key": env('RAPID_API_KEY', default=''),
+        "X-RapidAPI-Host": "amazon23.p.rapidapi.com"
+    }
+
+    response = requests.request("GET", url, headers=headers, params=querystring)
+
+    return response.text
+
 def save_reviews(user, asin, pg_num, response):
     doc = ProductReviews(
         USER = user,
