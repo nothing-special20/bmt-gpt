@@ -9,6 +9,35 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!--Mobile friendly-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Required Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta content="Minia Premium Multipurpose Admin & Dashboard Template documentation of Django" name="description" />
+    <meta name="keywords" content="Minia admin documentation, Minia Django documentation">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="icon" type="image/png" href="img/favicon.png" />
+
+    <!--Core CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/bulma.css' %}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link id="theme-sheet" rel="stylesheet" href="{% static 'css/core.css' %}">
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="img/favicon.png" />
+    <!-- Icons Css -->
+    <link href="{% static 'css/bulma.css' %}" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="{% static 'css/minia-app.min.css' %}" id="app-style" rel="stylesheet" type="text/css" />
+
+    {% if MICROSOFT_CLARITY %}
+        {% include 'web/components/microsoft_clarity.html' %}
+    {% endif %}
+
+
 {% if project_meta %}
   {% with project_meta|get_title:page_title as title %}
   {% with project_meta|get_description:page_description as description %}

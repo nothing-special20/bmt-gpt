@@ -3,17 +3,55 @@
 {% block body %}
 {% block notifications %}
 {% endblock %}
-<div class="container my-3">
+<div>
+
+    <!-- Begin page - MINIA-RTL -->
+   
+        {% block header %} 
+        {% include '../partials/hori-header.html' %} 
+        {% endblock %}
+
+        {% block sidebar %} 
+        {% include '../partials/hori-sidebar.html' %} 
+        {% endblock %}
+        
+        {% block app %}
+        {% endblock %}
+
+        {% comment %}
+        {% block footer %} 
+        {% include '../partials/footer.html' %} 
+        {% end %}
+        {% endcomment %}
+
+        {% block rightsidebar %} 
+        {% include '../partials/right-sidebar.html' %} 
+        {% endblock %}
+      <!-- end main content-->
+  
+  </div>
+  <!-- END layout-wrapper -->
+  
+  <!--
   <div class="row">
     <div class="col-xxl-2 col-lg-3">
-      {% block sidebar-nav %}
-        {% include "web/components/app_nav.html" %}
-      {% endblock %}
+     
     </div>
     <div class="col-lg">
-      {% block app %}
-      {% endblock %}
+
     </div>
   </div>
+-->
+  <!-- Concatenated jQuery and plugins -->
+  <script src="{% static 'js/app.js' %}"></script>
+
+  <!-- Bulkit js -->
+  <script src="{% static 'js/functions.js' %}"></script>
+  <script src="{% static 'js/auth.js' %}"></script>
+  <script src="{% static 'js/contact.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+
+  <script src="assets/js/app.js"></script>
+  <script src="{% static 'js/minia-app.js' %}"></script>
 </div>
 {% endblock %}

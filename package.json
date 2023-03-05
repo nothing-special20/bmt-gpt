@@ -32,13 +32,17 @@
     "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0"
   },
-  "dependencies": { 
+  "dependencies": {
     "@popperjs/core": "^2.11.5",
     "bootstrap": "^5.2.0",
+    "jquery": "^3.6.3",
+    "jquery.easing": "^1.4.1",
     "js-cookie": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0",
+    "resize-observer-polyfill": "^1.5.1",
+    "simplebar": "^6.2.1",
     "vue": "^3.2.37"
   }
 }
