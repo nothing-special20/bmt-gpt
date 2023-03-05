@@ -17,6 +17,10 @@ _dist/
 .env.production
 .DS_Store
 
+# Hide 'lock' files
+*lock.json
+
+# Build files
 # uncomment these lines after setting up the front-end build pipeline in dev and production
 # static/css/
 # static/js/
