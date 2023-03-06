@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 class ProductReviews(models.Model):
     USER = models.TextField()
@@ -39,3 +40,12 @@ class ReviewsAnalyzed(models.Model):
     COMPLETION_TOKENS = models.IntegerField()
     PROMPT_TOKENS = models.IntegerField()
     QUERY_DATE = models.DateTimeField()
+
+class ReviewsAnalyzedInternalModels(models.Model):
+    USER = models.TextField()
+    REVIEW_ID = models.TextField()
+    ASIN_ORIGINAL_ID = models.TextField(default=None, blank=True, null=True)
+    ASIN_VARIANT_ID = models.TextField(default=None, blank=True, null=True)
+    NOUNS = ArrayField(models.TextField())
+    ADJECTIVES = ArrayField(models.TextField())
+    QUERY_DATE = models.DateTimeField(default=None, blank=True, null=True)

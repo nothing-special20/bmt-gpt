@@ -15,7 +15,9 @@ from django.utils.translation import gettext_lazy
 
 from datetime import datetime
 
-from .models import ProductReviews, ReviewsAnalyzed, ProductDetails, ProcessedProductReviews
+from .models import ProductReviews, ReviewsAnalyzed, ProductDetails, ProcessedProductReviews, ReviewsAnalyzedInternalModels
+
+from collections import Counter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -356,3 +358,17 @@ def rate_limiter(user, asin_limit):
     all_user_asins = [x['ASIN'] for x in list(all_user_asins)]
 
     return len(all_user_asins) < asin_limit
+
+def review_analysis_most_common_words(user, asin, word_type):
+    data = list(ReviewsAnalyzedInternalModels.objects.filter(USER=user, ASIN_ORIGINAL_ID=asin).all().distinct().values())
+    _nouns = [x[word_type] for x in data]
+    nouns = []
+    for x in _nouns:
+        for y in x:
+            nouns.append(y)
+
+    most_common_words = Counter(nouns).most_common(15)
+    most_common_words = [pd.DataFrame([{'word': x[0], 'count': x[1]}]) for x in most_common_words]
+    most_common_words = pd.concat(most_common_words)
+    
+    return most_common_words
