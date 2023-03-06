@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
+import uuid
+
 class ProductReviews(models.Model):
     USER = models.TextField()
     ASIN = models.TextField()
@@ -11,6 +13,7 @@ class ProductReviews(models.Model):
     RESPONSE = models.TextField()
 
 class ProcessedProductReviews(models.Model):
+    RECORD_ID = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     USER = models.TextField()
     REVIEW_ID = models.TextField()
     ASIN_ORIGINAL_ID = models.TextField()
@@ -42,6 +45,7 @@ class ReviewsAnalyzed(models.Model):
     QUERY_DATE = models.DateTimeField()
 
 class ReviewsAnalyzedInternalModels(models.Model):
+    PROCESSED_RECORD_ID = models.ForeignKey(ProcessedProductReviews, to_field='RECORD_ID', on_delete=models.CASCADE, null=True)
     USER = models.TextField()
     REVIEW_ID = models.TextField()
     ASIN_ORIGINAL_ID = models.TextField(default=None, blank=True, null=True)
