@@ -1,3 +1,4 @@
+<!--
 <div style="margin-left:20px;">
     <br><br>
     <div class="row">
@@ -43,4 +44,91 @@
         </div>
     </div>
     <br><br>
+</div>
+-->
+
+<div class="row">
+    <!-- Details -->
+    <div class="col-xl-3 col-md-6">
+        <!-- card -->
+        <div class="card card-h-100">
+            <!-- card body -->
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">{{ asin_details.asin}}</span>
+                    </div>
+                    <h5 class="card-title mb-3">{{ asin_details.product_details.title}}</h5>
+                </div>
+                <div class="text-nowrap">
+                    {{asin_details.product_details.description}}
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div><!-- end col -->
+
+    <!-- Top 10 Things People Like-->
+    <div class="col-xl-3 col-md-6">
+        <!-- card -->
+        <div class="card card-h-100">
+            <!-- card body -->
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Liked:</span>
+                    </div>
+                    <ul>
+                        {% for like in asin_details.liked_reviews %}
+                          <li>{{ like }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="text-nowrap">
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div><!-- end col -->
+
+<!-- Top 10 Things People Dislike-->
+    <div class="col-xl-3 col-md-6">
+        <!-- card -->
+        <div class="card card-h-100">
+            <!-- card body -->
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Disliked:</span>
+                    </div>
+                    <ul>
+                        {% for dislike in asin_details.disliked_reviews %}
+                          <li>{{ dislike }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="text-nowrap">
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div><!-- end col -->
+<!-- Top 10 Things People Described Use -->
+    <div class="col-xl-3 col-md-6">
+        <!-- card -->
+        <div class="card card-h-100">
+            <!-- card body -->
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Described Use:</span>
+                    </div>
+                    <ul>
+                        {% for description in asin_details.description_reviews %}
+                            <li style="list-style-position: inside;">{{ description }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="text-nowrap">
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div><!-- end col -->
 </div>
