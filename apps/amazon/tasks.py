@@ -7,7 +7,7 @@ from itertools import repeat
 import math
 import json
 
-from .functions import get_single_product_detail, save_product_detail, store_gpt_results, split_list_into_sublists, prompts, get_reviews, save_reviews
+from .functions import get_single_product_detail, save_product_detail, store_gpt_results, prompts, get_reviews, save_reviews, process_reviews
 
 app = Celery('tasks', broker=settings.CELERY_BROKER_URL)
 
@@ -15,6 +15,7 @@ app = Celery('tasks', broker=settings.CELERY_BROKER_URL)
 def store_reviews(user, asin, pg_num):
     reviews = get_reviews(asin, pg_num)
     save_reviews(user, asin, pg_num, reviews)
+    process_reviews(user, reviews)
 
 @app.task
 def prep_all_gpt_data(user, asin_list):

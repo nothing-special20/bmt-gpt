@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy
 
 from datetime import datetime
 
-from .models import ProductReviews, ReviewsAnalyzed, ProductDetails
+from .models import ProductReviews, ReviewsAnalyzed, ProductDetails, ProcessedProductReviews
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -104,6 +104,31 @@ def save_reviews(user, asin, pg_num, response):
         RESPONSE = response
     )
     doc.save()
+
+def process_reviews(user, raw_reviews):
+    _reviews = json.loads(raw_reviews)
+    try:
+        reviews = _reviews['result']
+        for rev in reviews:
+            doc = ProcessedProductReviews(
+                USER = user,
+                REVIEW_ID = rev['id'],
+                ASIN_ORIGINAL_ID = rev['asin']['original'],
+                ASIN_VARIANT_ID = rev['asin']['variant'],
+                REVIEWER_NAME = rev['name'],
+                RATING = rev['rating'],
+                REVIEW_DATE = rev['date']['date'],
+                REVIEW_DATE_UNIX = rev['date']['unix'],
+                TITLE = rev['title'],
+                REVIEW = rev['review'],
+                VERIFIED_PURCHASE = rev['verified_purchase'],
+                LOAD_DATE = datetime.now(),
+            )
+
+            doc.save()
+    except:
+        print(_reviews)
+        print(_reviews.keys())
 
 def save_product_detail(user, asin, response):
     doc = ProductDetails(
