@@ -57,14 +57,23 @@ def main(request, team_slug):
             except:
                 asin_two_data = {}
 
-            return render(request, 'web/amazon/amazon_v2.html', {
+            return render(request, 'web/amazon/amazon_demo.html', {
                 'analyzed_asin_list': analyzed_asin_list,
                 'asin_one_data': asin_one_data,
                 'asin_two_data': asin_two_data,
             })
 
-        return render(request, 'web/amazon/amazon_v2.html', {
+        return render(request, 'web/amazon/amazon_demo.html', {
             'analyzed_asin_list': analyzed_asin_list,
+        })
+    else:
+        return render(request, 'web/landing_page.html')
+
+# @login_and_team_required
+def main_v2(request, team_slug):
+    if request.user.is_authenticated:
+        return render(request, 'web/amazon/amazon_v2.html', {
+            'analyzed_asin_list': [],
         })
     else:
         return render(request, 'web/landing_page.html')
