@@ -8,15 +8,16 @@ import re
 import json
 import pandas as pd
 
+from asgiref.sync import sync_to_async
+
 from django.conf import settings
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 from django.contrib.staticfiles.storage import staticfiles_storage
 
-from .functions import asin_gpt_data, prompts, rate_limiter, get_keyword_details, review_analysis_most_common_words
-from .functions_dashboard import bar_chart
-from .models import ReviewsAnalyzed, ReviewsAnalyzedInternalModels
+from .functions import asin_gpt_data, prompts, rate_limiter, get_keyword_details, review_analysis_most_common_words, create_word_bar_chart
+from .models import ReviewsAnalyzed
 
 from .tasks import prep_all_gpt_data
 
@@ -73,32 +74,34 @@ def main(request, team_slug):
         return render(request, 'web/landing_page.html')
 
 # @login_and_team_required
-def main_v2(request, team_slug):
+async def main_v2(request, team_slug):
     if request.user.is_authenticated:
         user = request.user.username
-        analyzed_asin_list = ReviewsAnalyzedInternalModels.objects.filter(USER=user).values('ASIN_ORIGINAL_ID').distinct()
-        analyzed_asin_list = [x['ASIN_ORIGINAL_ID'] for x in analyzed_asin_list]
+        # analyzed_asin_list = ReviewsAnalyzedInternalModels.objects.filter(USER=user).values('ASIN_ORIGINAL_ID').distinct()
+        # analyzed_asin_list = [x['ASIN_ORIGINAL_ID'] for x in analyzed_asin_list]
         # asin = analyzed_asin_list[0]
         asin = 'B01N1VV36N'
 
         positive_ratings = [4, 5]
         negative_ratings = [1, 2, 3]
 
-        most_common_nouns_positive = review_analysis_most_common_words(user, asin, 'NOUNS', positive_ratings)
-        most_common_adjectives_positive = review_analysis_most_common_words(user, asin, 'ADJECTIVES', positive_ratings)
-
-        most_common_nouns_negative = review_analysis_most_common_words(user, asin, 'NOUNS', negative_ratings)
-        most_common_adjectives_negative = review_analysis_most_common_words(user, asin, 'ADJECTIVES', negative_ratings)
-
         chart_config = {'x': 'word', 'y': 'count'}
 
+        
+
+        positive_noun_plot = await create_word_bar_chart(user, asin, 'NOUNS', positive_ratings, chart_config)
+        # positive_adjectives_plot = await create_word_bar_chart(user, asin, 'ADJECTIVES', positive_ratings, chart_config)
+        # negative_noun_plot = create_word_bar_chart(user, asin, 'NOUNS', negative_ratings, chart_config)
+        # positive_adjectives_plot = await create_word_bar_chart(user, asin, 'ADJECTIVES', negative_ratings, chart_config)
+
+        # context['positive_noun_plot'] = positive_noun_plot
         context = {
-            'analyzed_asin_list': analyzed_asin_list,
-            'positive_noun_plot': bar_chart(most_common_nouns_positive, chart_config),
-            'noun_adjective_plot': bar_chart(most_common_adjectives_positive, chart_config),
-            'negative_noun_plot': bar_chart(most_common_nouns_negative, chart_config),
-            'negative_adjective_plot': bar_chart(most_common_adjectives_negative, chart_config),
+            'analyzed_asin_list': [],
+            # 'positive_noun_plot': 'Loading Chart...',
+            'positive_noun_plot': positive_noun_plot,
         }
-        return render(request, 'web/amazon/amazon_v2.html', context)
+        
+        return await sync_to_async(render)(request, 'web/amazon/amazon_v2.html', context)
+
     else:
         return render(request, 'web/landing_page.html')

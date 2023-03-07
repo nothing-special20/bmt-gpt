@@ -19,6 +19,10 @@ from .models import ProductReviews, ReviewsAnalyzed, ProductDetails, ProcessedPr
 
 from collections import Counter
 
+from .functions_dashboard import bar_chart
+
+from asgiref.sync import sync_to_async
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -359,9 +363,11 @@ def rate_limiter(user, asin_limit):
 
     return len(all_user_asins) < asin_limit
 
+@sync_to_async
 def review_analysis_most_common_words(user, asin, word_type, rating_filter=[1,2,3,4,5]):
     fields = ['reviewsanalyzedinternalmodels__NOUNS', 'reviewsanalyzedinternalmodels__ADJECTIVES', 'RATING']
-    data = list(ProcessedProductReviews.objects.filter(USER=user, ASIN_ORIGINAL_ID=asin, RATING__in=rating_filter).all().select_related('PROCESSED_RECORD_ID').distinct().values(*fields))
+    data = ProcessedProductReviews.objects.filter(USER=user, ASIN_ORIGINAL_ID=asin, RATING__in=rating_filter).all().select_related('PROCESSED_RECORD_ID').distinct().values(*fields)
+    data = list(data)
     _nouns = [x['reviewsanalyzedinternalmodels__' + word_type] for x in data]
 
     nouns = []
@@ -374,3 +380,7 @@ def review_analysis_most_common_words(user, asin, word_type, rating_filter=[1,2,
     most_common_words = pd.concat(most_common_words)
     
     return most_common_words
+
+async def create_word_bar_chart(user, asin, word_type, positive_ratings, chart_config):
+    most_common_nouns_positive = await review_analysis_most_common_words(user, asin, word_type, positive_ratings)
+    return bar_chart(most_common_nouns_positive, chart_config)
