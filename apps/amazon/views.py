@@ -78,17 +78,26 @@ def main_v2(request, team_slug):
         user = request.user.username
         analyzed_asin_list = ReviewsAnalyzedInternalModels.objects.filter(USER=user).values('ASIN_ORIGINAL_ID').distinct()
         analyzed_asin_list = [x['ASIN_ORIGINAL_ID'] for x in analyzed_asin_list]
-        asin = analyzed_asin_list[0]
+        # asin = analyzed_asin_list[0]
+        asin = 'B01N1VV36N'
 
-        most_common_nouns = review_analysis_most_common_words(user, asin, 'NOUNS')
-        most_common_adjectives = review_analysis_most_common_words(user, asin, 'ADJECTIVES')
+        positive_ratings = [4, 5]
+        negative_ratings = [1, 2, 3]
+
+        most_common_nouns_positive = review_analysis_most_common_words(user, asin, 'NOUNS', positive_ratings)
+        most_common_adjectives_positive = review_analysis_most_common_words(user, asin, 'ADJECTIVES', positive_ratings)
+
+        most_common_nouns_negative = review_analysis_most_common_words(user, asin, 'NOUNS', negative_ratings)
+        most_common_adjectives_negative = review_analysis_most_common_words(user, asin, 'ADJECTIVES', negative_ratings)
 
         chart_config = {'x': 'word', 'y': 'count'}
 
         context = {
             'analyzed_asin_list': analyzed_asin_list,
-            'keyword_plot': bar_chart(most_common_nouns, chart_config),
-            'adjective_plot': bar_chart(most_common_adjectives, chart_config)
+            'positive_noun_plot': bar_chart(most_common_nouns_positive, chart_config),
+            'noun_adjective_plot': bar_chart(most_common_adjectives_positive, chart_config),
+            'negative_noun_plot': bar_chart(most_common_nouns_negative, chart_config),
+            'negative_adjective_plot': bar_chart(most_common_adjectives_negative, chart_config),
         }
         return render(request, 'web/amazon/amazon_v2.html', context)
     else:

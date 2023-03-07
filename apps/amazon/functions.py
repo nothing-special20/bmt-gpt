@@ -359,9 +359,11 @@ def rate_limiter(user, asin_limit):
 
     return len(all_user_asins) < asin_limit
 
-def review_analysis_most_common_words(user, asin, word_type):
-    data = list(ReviewsAnalyzedInternalModels.objects.filter(USER=user, ASIN_ORIGINAL_ID=asin).all().distinct().values())
-    _nouns = [x[word_type] for x in data]
+def review_analysis_most_common_words(user, asin, word_type, rating_filter=[1,2,3,4,5]):
+    fields = ['reviewsanalyzedinternalmodels__NOUNS', 'reviewsanalyzedinternalmodels__ADJECTIVES', 'RATING']
+    data = list(ProcessedProductReviews.objects.filter(USER=user, ASIN_ORIGINAL_ID=asin, RATING__in=rating_filter).all().select_related('PROCESSED_RECORD_ID').distinct().values(*fields))
+    _nouns = [x['reviewsanalyzedinternalmodels__' + word_type] for x in data]
+
     nouns = []
     for x in _nouns:
         for y in x:

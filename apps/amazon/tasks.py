@@ -29,6 +29,7 @@ def extract_nouns_adjectives_from_reviews(user, asin):
         adjectives = find_types_of_words(review_text, 'ADJ')
         
         doc = ReviewsAnalyzedInternalModels(
+            PROCESSED_RECORD_ID=ProcessedProductReviews.objects.get(RECORD_ID=review['RECORD_ID']),
             USER = user,
             REVIEW_ID = review['REVIEW_ID'],
             ASIN_ORIGINAL_ID = review['ASIN_ORIGINAL_ID'],
@@ -58,7 +59,5 @@ def prep_all_gpt_data(user, asin_list):
     job_list_extract_nouns_adjectives_from_reviews = group([extract_nouns_adjectives_from_reviews.subtask((user, asin)) for asin in asin_list])
     job_list_extract_nouns_adjectives_from_reviews.apply()
 
-    # for asin in asin_list:
-    #     extract_nouns_adjectives_from_reviews(user, asin) 
 
     store_gpt_results(user, asin_list, prompts)
