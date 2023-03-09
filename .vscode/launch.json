@@ -25,10 +25,16 @@
         "pathMappings": [
             { 
                 "localRoot": "${workspaceFolder}",
-                "remoteRoot": "/app"      
+                "remoteRoot": "/code"      
             }
             ],
-        "django": true
+        "django": true,
+        "args": [
+          "-m celery",
+          "-A bmt_gpt",
+          "worker -l",
+          "INFO --concurrency=6"
+        ]
       },
     ]
   }
