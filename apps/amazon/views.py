@@ -1,25 +1,58 @@
 from django.shortcuts import render
+from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
+from django.contrib import messages
 
 # from .functions import interpret_text, read_word_doc
 # from .models import DocQueries, IndexQueries
 # from django.templatetags.static import static
 import re
 import json
-import pandas as pd
 
 from asgiref.sync import sync_to_async
 
-from django.conf import settings
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-from django.contrib.staticfiles.storage import staticfiles_storage
-
-from .functions import asin_gpt_data, prompts, rate_limiter, get_keyword_details, review_analysis_most_common_words, create_word_bar_chart
+from .functions import asin_gpt_data, prompts, rate_limiter, get_keyword_details, create_word_bar_chart, review_analysis_fields, asin_list_maker
 from .models import ReviewsAnalyzed
 
 from .tasks import prep_all_gpt_data
+
+def fetch_new_asin_data(request, team_slug):
+    print('lol it worked')
+    if request.user.is_authenticated:
+        user = request.user.username
+        search_type = request.POST.get('search_type')
+        search_value = request.POST.get('search_asin')
+        asin_list = []
+        if search_type == 'ASIN':
+            asin_list = re.sub(',', ';', search_value)
+            asin_list = re.sub(' ', '', asin_list)
+
+            if ';' in asin_list:
+                asin_list = asin_list.split(';')
+            else:
+                asin_list = [asin_list]
+
+        if search_type == 'KEYWORD':
+            keyword_details = get_keyword_details(search_value)
+            keyword_details = json.loads(json.dumps(keyword_details))
+            asin_list = [x['asin'] for x in keyword_details['asin_list'][0:10]]
+
+        #Rate limit them to 20 asins per month
+        if rate_limiter(user, 20):
+            prep_all_gpt_data.delay(user, asin_list)
+
+        print(f"Fetching data for {search_type}: {search_value}.")
+        messages.success(request, f"Fetching data for {search_type}: {search_value}. Your report will be ready in a few minutes.")
+        return HttpResponse(
+            status=204,
+            headers={
+                'HX-Trigger': json.dumps({
+                    "showMessage": f"Fetching data for {search_type}: {search_value}."
+                })
+            })
 
 def main(request, team_slug):
     if request.user.is_authenticated:
@@ -28,27 +61,7 @@ def main(request, team_slug):
         analyzed_asin_list = [x['ASIN'] for x in analyzed_asin_list]
 
         if request.method == 'POST' and 'search-asin' in request.POST and 'search-type' in request.POST:
-            search_type = request.POST.get('search-type')
-            search_value = request.POST.get('search-asin')
-            asin_list = []
-            if search_type == 'ASIN':
-                asin_list = re.sub(',', ';', search_value)
-                asin_list = re.sub(' ', '', asin_list)
-
-                if ';' in asin_list:
-                    asin_list = asin_list.split(';')
-                else:
-                    asin_list = [asin_list]
-
-            if search_type == 'KEYWORD':
-                keyword_details = get_keyword_details(search_value)
-                keyword_details = json.loads(json.dumps(keyword_details))
-                asin_list = [x['asin'] for x in keyword_details['asin_list'][0:10]]
-
-            #Rate limit them to 20 asins per month
-            if rate_limiter(user, 20):
-                # prep_all_gpt_data.delay(user, asin_list)
-                prep_all_gpt_data(user, asin_list)
+            fetch_new_asin_data(request, team_slug)
 
         if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
             asin = request.POST.get('retrieve-asin-data-1')
@@ -77,29 +90,52 @@ def main(request, team_slug):
 async def main_v2(request, team_slug):
     if request.user.is_authenticated:
         user = request.user.username
-        # analyzed_asin_list = ReviewsAnalyzedInternalModels.objects.filter(USER=user).values('ASIN_ORIGINAL_ID').distinct()
-        # analyzed_asin_list = [x['ASIN_ORIGINAL_ID'] for x in analyzed_asin_list]
-        # asin = analyzed_asin_list[0]
-        asin = 'B01N1VV36N'
+        
+        asin_list = await asin_list_maker(user)
 
         positive_ratings = [4, 5]
         negative_ratings = [1, 2, 3]
 
         chart_config = {'x': 'word', 'y': 'count'}
+        if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
+            asin = request.POST.get('retrieve-asin-data-1')
 
-        
+            who_plot = await create_word_bar_chart(user, asin, 'WHO', positive_ratings, chart_config)
+            where_plot = await create_word_bar_chart(user, asin, 'WHERE', positive_ratings, chart_config)
+            when_plot = await create_word_bar_chart(user, asin, 'WHEN', negative_ratings, chart_config)
+            how_often_plot = await create_word_bar_chart(user, asin, 'HOW_OFTEN', negative_ratings, chart_config)
 
-        positive_noun_plot = await create_word_bar_chart(user, asin, 'NOUNS', positive_ratings, chart_config)
-        # positive_adjectives_plot = await create_word_bar_chart(user, asin, 'ADJECTIVES', positive_ratings, chart_config)
-        # negative_noun_plot = create_word_bar_chart(user, asin, 'NOUNS', negative_ratings, chart_config)
-        # positive_adjectives_plot = await create_word_bar_chart(user, asin, 'ADJECTIVES', negative_ratings, chart_config)
+            positive_descriptions = await review_analysis_fields(user, asin, 'DESCRIPTION', positive_ratings)
+            positive_descriptions = [x['reviewsanalyzedopenai__DESCRIPTION'] for x in positive_descriptions]
+            positive_descriptions_max_len = min(10, len(positive_descriptions))
+            positive_descriptions = positive_descriptions[:positive_descriptions_max_len]
 
-        # context['positive_noun_plot'] = positive_noun_plot
-        context = {
-            'analyzed_asin_list': [],
-            # 'positive_noun_plot': 'Loading Chart...',
-            'positive_noun_plot': positive_noun_plot,
-        }
+            negative_descriptions = await review_analysis_fields(user, asin, 'DESCRIPTION', negative_ratings)
+            negative_descriptions = [x['reviewsanalyzedopenai__DESCRIPTION'] for x in negative_descriptions]
+            negative_descriptions_max_len = min(10, len(negative_descriptions))
+            negative_descriptions = negative_descriptions[:negative_descriptions_max_len]
+
+            context = {
+                'analyzed_asin_list': asin_list,
+                'selected_asin': asin,
+                'who_plot': who_plot,
+                'where_plot': where_plot,
+                'when_plot': when_plot,
+                'how_often_plot': how_often_plot,
+                'positive_descriptions': positive_descriptions,
+                'negative_descriptions': negative_descriptions,
+            }
+        else:
+            context = {
+                'analyzed_asin_list': asin_list,
+                'selected_asin': '',
+                'who_plot': '',
+                'where_plot': '',
+                'when_plot': '',
+                'how_often_plot': '',
+                'positive_descriptions': '',
+                'negative_descriptions': '',
+            }
         
         return await sync_to_async(render)(request, 'web/amazon/amazon_v2.html', context)
 

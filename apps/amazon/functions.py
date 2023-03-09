@@ -23,6 +23,8 @@ from .functions_dashboard import bar_chart
 
 from asgiref.sync import sync_to_async
 
+import time
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -47,7 +49,7 @@ prompts = {
 }
 
 # get amazon reviews
-def get_reviews(asin, pg_num):
+def _get_reviews(asin, pg_num):
     url = "https://amazon23.p.rapidapi.com/reviews"
     
     querystring = {
@@ -65,7 +67,22 @@ def get_reviews(asin, pg_num):
 
     return response.text
 
-def get_single_product_detail(asin):
+def get_reviews(asin, pg_num):
+    # '{"errors":[{"param":"","msg":"Not expected text found"}]}'
+    counter = 0
+    while counter < 5:
+        response = _get_reviews(asin, pg_num)
+        _response = json.loads(response)
+        if 'errors' in _response.keys():
+            time.sleep(5)
+            _response = json.loads("{}")
+            counter += 1
+        else:
+            break
+
+    return response
+
+def _get_single_product_detail(asin):
     url = "https://amazon23.p.rapidapi.com/product-details"
 
     querystring = {
@@ -81,6 +98,21 @@ def get_single_product_detail(asin):
     response = requests.request("GET", url, headers=headers, params=querystring)
 
     return response.text
+
+def get_single_product_detail(asin):
+    counter = 0
+    while counter < 5:
+        try:
+            response = _get_single_product_detail(asin)
+            _response = json.loads(response)
+            product_details = _response['result'][0]
+            break
+        except:
+            counter += 1
+            time.sleep(5)
+            product_details = json.loads({})
+
+    return product_details
 
 def get_keyword_details(keyword):
     url = 'https://amazon23.p.rapidapi.com/product-search'
@@ -364,16 +396,45 @@ def rate_limiter(user, asin_limit):
     return len(all_user_asins) < asin_limit
 
 @sync_to_async
-def review_analysis_most_common_words(user, asin, word_type, rating_filter=[1,2,3,4,5]):
-    fields = ['reviewsanalyzedinternalmodels__NOUNS', 'reviewsanalyzedinternalmodels__ADJECTIVES', 'RATING']
+def review_analysis_fields(user, asin, word_type, rating_filter=[1,2,3,4,5]):
+    fields = ['reviewsanalyzedopenai__' + word_type, 'RATING']
     data = ProcessedProductReviews.objects.filter(USER=user, ASIN_ORIGINAL_ID=asin, RATING__in=rating_filter).all().select_related('PROCESSED_RECORD_ID').distinct().values(*fields)
     data = list(data)
-    _nouns = [x['reviewsanalyzedinternalmodels__' + word_type] for x in data]
+
+    return data
+
+@sync_to_async
+def review_analysis_most_common_words(user, asin, word_type, rating_filter=[1,2,3,4,5]):
+    # fields = ['reviewsanalyzedinternalmodels__NOUNS', 'reviewsanalyzedinternalmodels__ADJECTIVES', 'RATING']
+    fields = ['reviewsanalyzedopenai__' + word_type, 'RATING']
+    data = ProcessedProductReviews.objects.filter(USER=user, ASIN_ORIGINAL_ID=asin, RATING__in=rating_filter).all().select_related('PROCESSED_RECORD_ID').distinct().values(*fields)
+    data = list(data)
+    # _nouns = [x['reviewsanalyzedinternalmodels__' + word_type] for x in data]
+    _nouns = [x['reviewsanalyzedopenai__' + word_type] for x in data]
 
     nouns = []
     for x in _nouns:
-        for y in x:
-            nouns.append(y)
+        if x != None and x not in ['NA', 'reviewer'] and len(x) > 0:
+            punctuation = '''!()-[]{};:,'"\,<>./?@#$%^&*_~'''
+            x = x.replace(punctuation, " ")
+            x = x.replace("  ", " ")
+            x = x.lower()
+            x = x.strip()
+            while x[0] == ' ':
+                x = x[1:]
+
+            if isinstance(x, list):
+                xlist = x
+
+            if ',' in x:
+                xlist = x.split(' ')
+                xlist = [z.strip() for z in xlist]
+
+            else:
+                xlist = [x]
+                
+            for y in xlist:
+                nouns.append(y)
 
     most_common_words = Counter(nouns).most_common(15)
     most_common_words = [pd.DataFrame([{'word': x[0], 'count': x[1]}]) for x in most_common_words]
@@ -384,3 +445,9 @@ def review_analysis_most_common_words(user, asin, word_type, rating_filter=[1,2,
 async def create_word_bar_chart(user, asin, word_type, positive_ratings, chart_config):
     most_common_nouns_positive = await review_analysis_most_common_words(user, asin, word_type, positive_ratings)
     return bar_chart(most_common_nouns_positive, chart_config)
+
+@sync_to_async
+def asin_list_maker(user):
+    analyzed_asin_list = ProcessedProductReviews.objects.filter(USER=user, reviewsanalyzedopenai__ASIN_ORIGINAL_ID__isnull=False).values('ASIN_ORIGINAL_ID').distinct()
+    analyzed_asin_list = [x['ASIN_ORIGINAL_ID'] for x in analyzed_asin_list]
+    return analyzed_asin_list
