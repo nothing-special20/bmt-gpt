@@ -436,9 +436,13 @@ def review_analysis_most_common_words(user, asin, word_type, rating_filter=[1,2,
             for y in xlist:
                 nouns.append(y)
 
-    most_common_words = Counter(nouns).most_common(15)
-    most_common_words = [pd.DataFrame([{'word': x[0], 'count': x[1]}]) for x in most_common_words]
-    most_common_words = pd.concat(most_common_words)
+    try:
+        most_common_words = Counter(nouns).most_common(15)
+        most_common_words = [pd.DataFrame([{'word': x[0], 'count': x[1]}]) for x in most_common_words]
+        most_common_words = pd.concat(most_common_words)
+
+    except:
+        most_common_words = pd.DataFrame([{'word': '', 'count': ''}])
     
     return most_common_words
 
