@@ -213,19 +213,9 @@ def open_ai_summarize_text(prompt, max_tokens):
     return response
 
 
-def asin_review_list(user, asin, review_rating):
-    all_reviews = []
-
-    data_list = ProductReviews.objects.filter(USER=user, ASIN=asin).values('RESPONSE').distinct()
-    data_list = [json.loads(x['RESPONSE']) for x in data_list]
-
-    for ten_ct in data_list:
-        try:
-            for x in ten_ct['result']:
-                if x['verified_purchase'] == True and (review_rating is None or x['rating'] in review_rating):
-                    all_reviews.append(x['review'])
-        except:
-            pass
+def asin_review_list(user, asin, rating_filter):
+    all_reviews = ProcessedProductReviews.objects.filter(USER=user, ASIN_ORIGINAL_ID=asin, VERIFIED_PURCHASE=True, RATING__in=rating_filter).all().distinct().values()
+    all_reviews = list(all_reviews)
 
     return all_reviews
 
