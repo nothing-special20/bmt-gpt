@@ -12,6 +12,8 @@ import requests
 import math
 
 from django.utils.translation import gettext_lazy
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 
 from datetime import datetime
 
@@ -145,6 +147,7 @@ def save_reviews(user, asin, pg_num, response):
 
 def process_reviews(user, raw_reviews):
     _reviews = json.loads(raw_reviews)
+    output = []
     try:
         reviews = _reviews['result']
         for rev in reviews:
@@ -164,9 +167,17 @@ def process_reviews(user, raw_reviews):
             )
 
             doc.save()
+            data = serializers.serialize('python', [doc])[0]
+
+            # Convert the dict to a JSON string with custom encoding
+            _json_data = json.dumps(data, cls=DjangoJSONEncoder)
+            json_data = json.loads(_json_data)['fields']
+            output.append(json_data)
     except:
         print(_reviews)
         print(_reviews.keys())
+
+    return output
 
 def save_product_detail(user, asin, response):
     doc = ProductDetails(
