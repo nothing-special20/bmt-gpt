@@ -1,0 +1,15 @@
+pg_dumpall -U postgres -g > "/var/lib/postgresql/backups/bmt_gpt-globals.sql"
+pg_dump -U postgres -Fp -s bmt_gpt > "/var/lib/postgresql/backups/bmt_gpt-db-schema.sql"
+pg_dump -U postgres -Fc bmt_gpt > "/var/lib/postgresql/backups/bmt_gpt.dump"
+
+#restore commands
+psql createdb -U postgres bmt_gpt
+sudo -u postgres createdb bmt_gpt
+
+psql -U postgres --command "DROP DATABASE bmt_gpt;"
+psql -U postgres --command "CREATE DATABASE bmt_gpt;"
+
+psql -U postgres -f "/Users/rapple2018/Library/CloudStorage/OneDrive-NA/gpt_apps/amazon/data/bmt_gpt-globals.sql"
+psql -U postgres -f "/Users/rapple2018/Library/CloudStorage/OneDrive-NA/gpt_apps/amazon/data/bmt_gpt-db-schema.sql" bmt_gpt
+pg_restore -U postgres -a -d bmt_gpt -Fc "/Users/rapple2018/Library/CloudStorage/OneDrive-NA/gpt_apps/amazon/data/bmt_gpt.dump"
+
