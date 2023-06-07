@@ -28,3 +28,5 @@ static/misc_data/gpt_index_testing_index
 *.icloud
 *.csv
 *checkpoint.ipynb
+*gpt_index*
+*venv/bin*

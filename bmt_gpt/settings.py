@@ -107,6 +107,7 @@ PROJECT_APPS = [
     'apps.teams_example.apps.TeamsExampleConfig',
     'apps.docchatgpt.apps.DocChatGptConfig',
     'apps.amazon.apps.AmazonConfig',
+    'apps.customer_insights.apps.CustomerInsightsConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PEGASUS_APPS + PROJECT_APPS

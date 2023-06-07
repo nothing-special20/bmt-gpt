@@ -154,9 +154,9 @@
                         <!-- card body -->
                         <div class="card-body">
                             <div class="d-flex flex-wrap align-items-center mb-4">
-                                <h5 class="card-title me-2">How Often</h5>
+                                <h5 class="card-title me-2">Activity</h5>
                                 <div class="ms-auto" style="width:100%;">
-                                    {{ how_often_plot|safe }}
+                                    {{ activity_plot|safe }}
                                 </div>
                             </div>
                         </div>
@@ -270,7 +270,7 @@
         $.ajax({
             type:'POST',
             dataType: 'json',
-            url: "{% url 'amazon:fetch_new_asin_data' request.team.slug %}",
+            url: "{% url 'customer_insights:fetch_new_asin_data' request.team.slug %}",
             async: false,
             data:
             {

@@ -40,6 +40,7 @@ team_urlpatterns = [
     path('example/', include('apps.teams_example.urls')),
     path('docchatgpt/', include('apps.docchatgpt.urls')),
     path('amazon/', include('apps.amazon.urls')),
+    path('customer_insights/', include('apps.customer_insights.urls')),
 ]
 
 urlpatterns = [
