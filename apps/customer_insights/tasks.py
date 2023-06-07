@@ -14,7 +14,7 @@ app = Celery('tasks', broker=settings.CELERY_BROKER_URL)
 def assign_topics_to_reviews(processed_reviews, topics):
     classifier = pipeline("zero-shot-classification", model="valhalla/distilbart-mnli-12-1")
 
-    for proc_review in processed_reviews[0:10]:
+    for proc_review in processed_reviews:
         start_time = datetime.now()
 
         try:
