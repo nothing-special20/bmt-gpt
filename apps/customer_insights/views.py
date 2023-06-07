@@ -44,6 +44,12 @@ def fetch_new_asin_data(request, team_slug):
         #Rate limit them to 20 asins per month
         if rate_limiter(user, 20):
             for asin in asin_list:
+                try:
+                    asin_doc = Asins(ASIN=asin)
+                    asin_doc.save()
+                except:
+                    print(f'Error: ASIN {asin} already exists in DB')
+
                 user_request_doc = UserRequests(
                     USER = user,
                     REQUEST_TYPE = search_type,
@@ -52,13 +58,6 @@ def fetch_new_asin_data(request, team_slug):
                     REQUEST_DATE = datetime.now()
                 )
                 user_request_doc.save()
-
-            for asin in asin_list[:1]:
-                try:
-                    asin_doc = Asins(ASIN=asin)
-                    asin_doc.save()
-                except:
-                    print(f'Error: ASIN {asin} already exists in DB')
 
                 for pg_num in range(1, 2):
                     raw_reviews = get_reviews(asin, pg_num)
