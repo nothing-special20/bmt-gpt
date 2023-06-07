@@ -102,7 +102,7 @@ def subtopic_labler(review, topic):
     
 def categorize_common_words(common_words):
     categorize_common_words_template = """
-        I am going to give you a list of words. Please tell me which refer to people ("who"), which refer to dates or times ("when"), which refer to places ("where"), and which describe actions or activities ("activities"). Please return your response as a JSON object with who, when, where, and what as keys, and the results as lists for values. If a word does not fit into one of those categories, you can exclude it from the response. Please exclude adjectives from your response. Words: {words}
+        I am going to give you a list of words. Please tell me which refer to people ("who"), which refer to dates or times ("when"), which refer to places ("where"), and which describe actions or activities ("activities"). Please return your response as a JSON object with who, when, where, and what as keys, and the results as lists for values. If a word does not fit into one of those categories, please categorize that word as "other". Please exclude adjectives from your response. Words: {words}
     """
 
     openai_llm = OpenAI(verbose=True, temperature=.1, model_name="text-davinci-003", max_tokens=2000)

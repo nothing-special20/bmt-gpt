@@ -15,7 +15,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 from .functions_ra import get_reviews, get_keyword_details, process_reviews, store_processed_reviews
-from .functions_other import rate_limiter, asin_list_maker, word_count_categories
+from .functions_other import rate_limiter, asin_list_maker, word_count_categories, customer_sentinment_data
 from .functions_ml import most_common_words, lemmatize, sampled_phrases, create_topics, categorize_common_words
 from .functions_visualizations import bar_chart
 from .models import ProcessedProductReviews, Asins, ReviewsAnalyzedInternalModels, CategorizedWords, UserRequests
@@ -128,6 +128,7 @@ async def main(request, team_slug):
                 asin = [asin]
 
             word_counts = await word_count_categories(asin)
+            cust_sent_data = await customer_sentinment_data(asin)
             print(word_counts)
             who_counts = word_counts[word_counts['category']=='who']
             where_counts = word_counts[word_counts['category']=='where']
@@ -158,6 +159,7 @@ async def main(request, team_slug):
                 'activity_plot': activity_plot,
                 'positive_descriptions': 'positive_descriptions',
                 'negative_descriptions': 'negative_descriptions',
+                'cust_sent_data': cust_sent_data,
             }
         else:
             context = {

@@ -15,7 +15,7 @@ class UserRequests(models.Model):
     REQUEST_DATE = models.DateTimeField()
 
 class ProductReviews(models.Model):
-    ASIN = models.ForeignKey(Asins, to_field='ASIN', on_delete=models.CASCADE)
+    ASIN = models.ForeignKey(Asins, to_field='ASIN', on_delete=models.CASCADE, db_column='ASIN')
     COUNTRY = models.TextField()
     SORT_BY = models.TextField()
     PAGE_NUM = models.IntegerField()
@@ -27,7 +27,7 @@ class ProcessedProductReviews(models.Model):
     RECORD_ID = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     ASIN_REVIEW_CONCAT_ID = models.TextField(unique=True, null=True)
     REVIEW_ID = models.TextField()
-    ASIN_ORIGINAL_ID = models.ForeignKey(Asins, to_field='ASIN', on_delete=models.CASCADE)
+    ASIN_ORIGINAL_ID = models.ForeignKey(Asins, to_field='ASIN', on_delete=models.CASCADE, db_column='ASIN_ORIGINAL_ID')
     ASIN_VARIANT_ID = models.TextField()
     REVIEWER_NAME = models.TextField()
     RATING = models.IntegerField()

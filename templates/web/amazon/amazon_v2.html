@@ -100,67 +100,36 @@
             <div class="row"></div>
             <br>
             <div class="row">
-                <div class="col-xl-6">
+                <div class="">
                     <!-- card -->
-                    <div class="card card-h-100">
+                    <div class="card card-h-100 col-xl-12">
                         <!-- card body -->
                         <div class="card-body">
                             <div class="d-flex flex-wrap align-items-center mb-4">
-                                <h5 class="card-title me-2">Who</h5>
-                                <div class="ms-auto" style="width:100%;" id="positiveNounsPlot">
+                                <div class="ms-auto" style="width:25%;" id="positiveNounsPlot">
+                                    <h5 class="card-title me-2">Who</h5>
                                     {{ who_plot|safe }}
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end card -->
-                </div>
-                <div class="col-xl-6">
-                    <!-- card -->
-                    <div class="card card-h-100">
-                        <!-- card body -->
-                        <div class="card-body">
-                            <div class="d-flex flex-wrap align-items-center mb-4">
-                                <h5 class="card-title me-2">Where</h5>
-                                <div class="ms-auto" style="width:100%;">
+                                <div class="ms-auto" style="width:25%;">
+                                    <h5 class="card-title me-2">Where</h5>
                                     {{ where_plot|safe }}
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end card -->
-                </div>
-            </div> <!-- end row-->
-
-            <div class="row">
-                <div class="col-xl-6">
-                    <!-- card -->
-                    <div class="card card-h-100">
-                        <!-- card body -->
-                        <div class="card-body">
-                            <div class="d-flex flex-wrap align-items-center mb-4">
-                                <h5 class="card-title me-2">When</h5>
-                                <div class="ms-auto" style="width:100%;">
+                                <div class="ms-auto" style="width:25%;">
+                                    <h5 class="card-title me-2">When</h5>
                                     {{ when_plot|safe }}
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end card -->
-                </div>
-                <div class="col-xl-6">
-                    <!-- card -->
-                    <div class="card card-h-100">
-                        <!-- card body -->
-                        <div class="card-body">
-                            <div class="d-flex flex-wrap align-items-center mb-4">
-                                <h5 class="card-title me-2">Activity</h5>
-                                <div class="ms-auto" style="width:100%;">
+                                <div class="ms-auto" style="width:25%;">
+                                    <h5 class="card-title me-2">Activity</h5>
                                     {{ activity_plot|safe }}
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- end card -->
+                </div>
+                <div class="col-xl-6">
+                    <!-- card -->
+                    
                     <!-- end card -->
                 </div>
             </div> <!-- end row-->
@@ -173,9 +142,40 @@
                         <div class="card-body">
                             <div class="d-flex flex-wrap align-items-center mb-4">
                                 <h5 class="card-title me-2">Customer Sentiment</h5>
-                                <div class="ms-auto" style="width:100%;">
-                                    {{ when_plot|safe }}
-                                </div>
+                                <br>
+                                <table hx-target="this" hx-swap="outerHTML">
+                                    <style>
+                                        table {
+                                            border: 1px solid lightgrey;
+                                            border-radius: 5px;
+                                        }
+                                        thead tr {
+                                            background-color: white;
+                                        }
+                                        tbody tr:nth-child(odd) {
+                                            background-color: #F5F5F5;
+                                        }
+                                        tbody tr:nth-child(even) {
+                                            background-color: white;
+                                        }
+                                    </style>
+                                    <thead>
+                                        <tr>
+                                            <th>Topic</th>
+                                            <th>Subtopic</th>
+                                            <th>Review Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in cust_sent_data %}
+                                        <tr>
+                                            <td>{{ row.topic }}</td>
+                                            <td>{{ row.sub_topic }}</td>
+                                            <td>{{ row.count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

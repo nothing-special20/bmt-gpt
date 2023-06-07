@@ -1,6 +1,7 @@
 from asgiref.sync import sync_to_async
 from datetime import datetime
 import re
+from django.db.models import Count
 
 import pandas as pd
 
@@ -45,5 +46,29 @@ def word_count_categories(asin):
     word_categories['word'] = [str(x) for x in word_categories['word']]
 
     final = pd.merge(review_top_nouns_adjs_verbs, word_categories, on='word', how='left')
+    final = final[[len(x) > 1 for x in final['word']]]
     
+    return final
+
+@sync_to_async
+def customer_sentinment_data(asin):
+    topic_counts = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin).values('reviewsanalyzedinternalmodels__TOPIC').annotate(count=Count('RECORD_ID'))
+    topic_counts = list(topic_counts)
+    topic_counts = sorted(topic_counts, key=lambda x: x['count'], reverse=True)
+    topic_counts = pd.DataFrame(topic_counts)
+
+    sample_sub_topics = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin).values('reviewsanalyzedinternalmodels__TOPIC', 'reviewsanalyzedinternalmodels__SUB_TOPIC').distinct()
+    sample_sub_topics = list(sample_sub_topics)
+    sample_sub_topics = pd.DataFrame(sample_sub_topics)
+    sample_sub_topics = sample_sub_topics.groupby('reviewsanalyzedinternalmodels__TOPIC').head(3)#['reviewsanalyzedinternalmodels__SUB_TOPIC'].apply(lambda x: ', '.join(x)).reset_index()
+    sample_sub_topics = sample_sub_topics.groupby('reviewsanalyzedinternalmodels__TOPIC')['reviewsanalyzedinternalmodels__SUB_TOPIC'].apply(', '.join).reset_index()
+    #concatenate the subtopics for each topic
+    # test = sample_sub_topics.to_dict('records')
+
+    final = pd.merge(topic_counts, sample_sub_topics, on='reviewsanalyzedinternalmodels__TOPIC', how='left')
+
+    final.rename(columns={'reviewsanalyzedinternalmodels__TOPIC': 'topic', 'reviewsanalyzedinternalmodels__SUB_TOPIC': 'sub_topic'}, inplace=True)
+
+    final = final.to_dict('records')
+
     return final
