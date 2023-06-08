@@ -1,6 +1,17 @@
 // initial configuration
-let totalPages = 100;  // set total number of pages
+// let totalPages = 100;  // set total number of pages
 let currentPage = 1;  // set default/initial page
+
+  // set default results per page
+
+// function to update results per page
+function updateResultsPerPage(value) {
+  resultsPerPage = value;
+  totalPages = Math.ceil(totalPages / resultsPerPage);  // update total number of pages
+  currentPage = 1;  // reset current page to 1
+  updatePagination();
+  sendPostRequest(currentPage, rating=rating, resultsPerPage=value);
+}
 
 // function to update the pagination buttons
 function updatePagination() {
@@ -96,13 +107,17 @@ function updatePagination() {
 }
 
 // function to send the POST request
-function sendPostRequest(pageNum) {
+function sendPostRequest(pageNum, rating=null, resultsPerPage=10) {
     var params = new URLSearchParams();
     let asinCleaned = asin.replaceAll('&#x27;', "");
     asinCleaned = asinCleaned.replaceAll('[', "");
     asinCleaned = asinCleaned.replaceAll(']', "");
     params.append('page-num', pageNum);
     params.append('retrieve-asin-data-1', asinCleaned);
+    params.append('rating-filter', rating);
+    params.append('results-per-page', resultsPerPage);
+
+    console.log('sendPostRequest params:', pageNum, asinCleaned, rating)
 
     fetch(paginator_url, {
         method: 'POST',
@@ -126,7 +141,31 @@ function sendPostRequest(pageNum) {
       });
       
     updatePagination();
+    console.log('updatePagination();')
 }
 
 // initial call to update the pagination buttons
-updatePagination();
+if (totalPages > 0 ) {
+    updatePagination();
+    Node.prototype.insertAfter = function(newNode, referenceNode) {
+        this.insertBefore(newNode, referenceNode.nextSibling);
+    };
+    
+    let selectField = document.createElement('select');
+    selectField.id = "resultsPerPage";
+    selectField.onchange = function () {
+      updateResultsPerPage(this.value);
+    };
+    
+    let options = [10, 25, 50];  // options for results per page
+    for (let i = 0; i < options.length; i++) {
+      let option = document.createElement('option');
+      option.value = options[i];
+      option.text = options[i];
+      selectField.appendChild(option);
+    }
+    
+    let paginationDiv = document.querySelector('.pagination');
+    paginationDiv.insertAfter(selectField, paginationDiv.lastChild);  // insert after paginator
+    
+}

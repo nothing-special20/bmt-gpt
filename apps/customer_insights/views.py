@@ -2,10 +2,12 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
+from django.db.models import Count
 
 import os
 import re
 import json
+import math
 import pandas as pd
 from datetime import datetime
 
@@ -183,26 +185,45 @@ def customer_reviews(request, team_slug):
     
     user = request.user.username
     asin_list = asin_list_maker(user)
-    context = {'analyzed_asin_list': asin_list}
+    context = {'analyzed_asin_list': asin_list, 'totalPages': 0}
+    results_per_page = 10
     
     if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
         asin = request.POST.get('retrieve-asin-data-1')
 
         page_num = 1
+        rating = [1,2,3,4,5]
 
         if 'page-num' in request.POST:
             page_num = int(request.POST.get('page-num'))
 
+        if 'rating-filter' in request.POST:
+            _rating = request.POST.get('rating-filter')
+            if '[' in _rating:
+                rating = json.loads(_rating)
+            elif _rating != 'null':
+                rating = [int(_rating)]
+
+        if 'results-per-page' in request.POST:
+            results_per_page = int(request.POST.get('results-per-page'))
+
         if type(asin) != list:
             asin = [asin]
 
+        processed_reviews_count = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains='glove').values('REVIEW_ID').annotate(count=Count('RECORD_ID'))
+        total_pages = math.ceil(len(processed_reviews_count) / results_per_page)
+
         rev_values = ['ASIN_ORIGINAL_ID', 'REVIEW_ID', 'RATING', 'REVIEW_DATE', 'TITLE', 'REVIEW', 'VERIFIED_PURCHASE']
-        processed_reviews = list(ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin).values(*rev_values)[((page_num-1)*10):(page_num*10)])
+        processed_reviews = list(ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains='glove').values(*rev_values)[((page_num-1)*results_per_page):(page_num*results_per_page)])
 
         context = {
             **context,
             'selected_asin': asin,
-            'processed_reviews': processed_reviews
+            'processed_reviews': processed_reviews,
+            'total_pages': total_pages,
+            'page_num': page_num,
+            'rating': rating,
+            'results_per_page': results_per_page,
         }
 
     return render(request, 'web/amazon/customer_reviews.html', context)

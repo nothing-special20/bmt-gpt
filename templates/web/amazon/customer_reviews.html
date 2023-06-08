@@ -23,6 +23,34 @@
             <!-- end page title -->
             {% include "web/amazon/components/asin_selector.html" %}
             <br><br><br>
+            <div class="row">
+                <div class="col-xl-12 col-md-12" style="padding-right:25px;">
+                    <!-- card -->
+                    <div class="card card-h-100" style="min-height:95px;">
+                        <!-- card body -->
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-12">
+                                    <span class="mb-3 lh-1 d-block" style="font-weight:bold; min-width:150px;">
+                                        Search by Rating
+                                    </span>
+                                    <div class="search-button btn-lg col-4" style="margin-top:-10px; margin-left:10px;">
+                                        <button onclick="sendPostRequest({{page_num}}, 1)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">1 Star</button>
+                                        <button onclick="sendPostRequest({{page_num}}, 2)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">2 Stars</button>
+                                        <button onclick="sendPostRequest({{page_num}}, 3)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">3 Stars</button>
+                                        <button onclick="sendPostRequest({{page_num}}, 4)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">4 Stars</button>
+                                        <button onclick="sendPostRequest({{page_num}}, 5)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">5 Stars</button>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div id="mini-chart2" data-colors='["#5156be"]' class="apex-charts mb-2"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div><!-- end col-->
+            </div>
+            <br><br><br>
             <div id="review-cards">
                 {% for review in processed_reviews %}
                     <div class="row">
@@ -67,6 +95,16 @@
       
     <!-- End Page-content -->
 <!-- end main content-->
+<script>
+    var paginator_url = "{% url 'customer_insights:customer_reviews' request.team.slug %}"
+    var csrftoken = "{{ csrf_token }}";
+    var asin = "{{ selected_asin }}";
+    var totalPages = "{{ total_pages }}";
+    let resultsPerPage = "{{ results_per_page }}";
+    var page_num = "{{ page_num }}";
+    var rating = "{{ rating }}";
+</script>
+
 <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 <script src="{% static "js/custom.js" %}"></script>
 <script src="{% static "js/paginator.js" %}"></script>
@@ -107,12 +145,6 @@
      
     }
 </script> {% endcomment %}
-
-<script>
-    var paginator_url = "{% url 'customer_insights:customer_reviews' request.team.slug %}"
-    var csrftoken = "{{ csrf_token }}";
-    var asin = "{{ selected_asin }}";
-</script>
 
 <script type="text/javascript">
     $(document).on('submit','#search-asin-form', async function(e) {
