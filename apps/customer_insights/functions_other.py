@@ -19,12 +19,15 @@ def rate_limiter(user, asin_limit):
     # return len(all_user_asins) < asin_limit
     return True
 
-@sync_to_async
 def asin_list_maker(user):
     analyzed_asin_list = Asins.objects.filter(userrequests__USER=user).values('ASIN').distinct()
     analyzed_asin_list = list(analyzed_asin_list)
     analyzed_asin_list = [x['ASIN'] for x in analyzed_asin_list]
     return analyzed_asin_list
+
+@sync_to_async
+def asin_list_maker_async(user):
+    return asin_list_maker(user)
 
 @sync_to_async
 def word_count_categories(asin):

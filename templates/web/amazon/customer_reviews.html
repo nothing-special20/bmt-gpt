@@ -1,0 +1,167 @@
+{% extends "web/app/app_base.html" %}
+{% load static %}
+{% load i18n %}
+{% block app %}
+
+<!-- MINIA Horizontal - Begin page -->
+
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+{% for message in messages %}
+<input type="hidden" id="login-msg" value="{{message}}">
+{% endfor %}
+
+<head>
+    <link rel="stylesheet" href="{% static "css/custom.css" %}">
+    <link id="theme-sheet" rel="stylesheet" href="{% static "css/core.css" %}">
+</head>
+
+<div class="main-content">
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- end page title -->
+            {% include "web/amazon/components/asin_selector.html" %}
+            <br><br><br>
+            <div id="review-cards">
+                {% for review in processed_reviews %}
+                    <div class="row">
+                        <div class="col-xl-12 col-md-12" style="padding-right:25px;">
+                            <!-- card -->
+                            <div class="card card-h-100" style="min-height:195px;">
+                                <!-- card body -->
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-12">
+                                            <span class="mb-3 lh-1 d-block" style="font-weight:bold; min-width:150px;">
+                                                <a href="https://www.amazon.com/gp/customer-reviews/{{review.REVIEW_ID}}" target="_blank">
+                                                    {{ review.TITLE }}
+                                                </a>
+                                                - {{ review.RATING }} Star - {{ review.REVIEW_DATE }}
+                                            </span>
+                                            <h4 class="mb-3">
+                                                
+                                            </h4>
+                                        </div>
+                                        <div class="col-6">
+                                            <div id="mini-chart2" data-colors='["#5156be"]' class="apex-charts mb-2"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="ms-1 text-muted font-size-13">{{ review.REVIEW }}</span>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col-->
+                    </div>
+                    <br><br>
+                {% endfor %}
+            </div>
+            <div class="pagination">
+                <!-- content will be added dynamically -->
+            </div>
+        </div>
+        <!-- container-fluid -->
+    </div>
+</div>
+      
+    <!-- End Page-content -->
+<!-- end main content-->
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+<script src="{% static "js/custom.js" %}"></script>
+<script src="{% static "js/paginator.js" %}"></script>
+
+<script type="text/javascript">
+    $(document).on('submit','#search-asin-form', async function(e) {
+        $.ajax({
+            type:'POST',
+            dataType: 'json',
+            url: "{% url 'customer_insights:fetch_new_asin_data' request.team.slug %}",
+            async: false,
+            data:
+            {
+                search_asin:$("#search-asin").val(),
+                search_type:$("#search-type").val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        });
+</script>
+
+{% comment %} <script>
+    function changePage(event, pageNum) {
+      console.log(pageNum)
+      console.log('hiss')
+
+      event.preventDefault();
+    
+      // Remove 'active' class from all links
+      document.querySelectorAll('.pagination a').forEach((el) => {
+        el.classList.remove('active');
+      });
+    
+      // Add 'active' class to the clicked link
+      event.target.classList.add('active');
+    
+      // Perform a POST request
+     
+    }
+</script> {% endcomment %}
+
+<script>
+    var paginator_url = "{% url 'customer_insights:customer_reviews' request.team.slug %}"
+    var csrftoken = "{{ csrf_token }}";
+    var asin = "{{ selected_asin }}";
+</script>
+
+<script type="text/javascript">
+    $(document).on('submit','#search-asin-form', async function(e) {
+        $.ajax({
+            type:'POST',
+            dataType: 'json',
+            url: "{% url 'customer_insights:fetch_new_asin_data' request.team.slug %}",
+            async: false,
+            data:
+            {
+                search_asin:$("#search-asin").val(),
+                search_type:$("#search-type").val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        });
+</script>
+
+
+<style>
+    .pagination {
+      display: inline-block;
+    }
+    
+    .pagination button {
+      color: black;
+      float: left;
+      padding: 8px 16px;
+      text-decoration: none;
+      border: 1px solid #ddd;
+    }
+    
+    .pagination button.active {
+      background-color: #4C8BF5;
+      color: white;
+      border: 1px solid #4C8BF5;
+    }
+    
+    .pagination button:hover:not(.active) {background-color: #ddd;}
+    
+    .pagination button:first-child {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+    
+    .pagination button:last-child {
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+    </style>
+
+{% endblock %}

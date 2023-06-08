@@ -15,7 +15,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 from .functions_ra import get_reviews, get_keyword_details, process_reviews, store_processed_reviews
-from .functions_other import rate_limiter, asin_list_maker, word_count_categories, customer_sentinment_data
+from .functions_other import rate_limiter, asin_list_maker, asin_list_maker_async, word_count_categories, customer_sentinment_data
 from .functions_ml import most_common_words, lemmatize, sampled_phrases, create_topics, categorize_common_words
 from .functions_visualizations import bar_chart
 from .models import ProcessedProductReviews, Asins, ReviewsAnalyzedInternalModels, CategorizedWords, UserRequests
@@ -114,7 +114,7 @@ async def main(request, team_slug):
     if request.user.is_authenticated:
         user = request.user.username
         
-        asin_list = await asin_list_maker(user)
+        asin_list = await asin_list_maker_async(user)
 
         positive_ratings = [4, 5]
         negative_ratings = [1, 2, 3]
@@ -128,7 +128,6 @@ async def main(request, team_slug):
 
             word_counts = await word_count_categories(asin)
             cust_sent_data = await customer_sentinment_data(asin)
-            print(word_counts)
             who_counts = word_counts[word_counts['category']=='who']
             where_counts = word_counts[word_counts['category']=='where']
             when_counts = word_counts[word_counts['category']=='when']
@@ -176,3 +175,34 @@ async def main(request, team_slug):
 
     else:
         return render(request, 'web/landing_page.html')
+    
+
+def customer_reviews(request, team_slug):
+    if request.user.is_authenticated == False:
+        return render(request, 'web/landing_page.html')
+    
+    user = request.user.username
+    asin_list = asin_list_maker(user)
+    context = {'analyzed_asin_list': asin_list}
+    
+    if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
+        asin = request.POST.get('retrieve-asin-data-1')
+
+        page_num = 1
+
+        if 'page-num' in request.POST:
+            page_num = int(request.POST.get('page-num'))
+
+        if type(asin) != list:
+            asin = [asin]
+
+        rev_values = ['ASIN_ORIGINAL_ID', 'REVIEW_ID', 'RATING', 'REVIEW_DATE', 'TITLE', 'REVIEW', 'VERIFIED_PURCHASE']
+        processed_reviews = list(ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin).values(*rev_values)[((page_num-1)*10):(page_num*10)])
+
+        context = {
+            **context,
+            'selected_asin': asin,
+            'processed_reviews': processed_reviews
+        }
+
+    return render(request, 'web/amazon/customer_reviews.html', context)
