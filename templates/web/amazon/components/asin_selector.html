@@ -1,0 +1,76 @@
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <!-- card -->
+        <div class="card card-h-100" style="min-height:195px;">
+            <!-- card body -->
+            <div class="card-body" style="overflow: auto;">
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <span class="mb-3 lh-1 d-block text-truncate" style="font-weight:bold;">Selected ASIN</span>
+                        <h4 class="mb-3 ">
+                           {{ selected_asin }}
+                        </h4>
+                        <form class="control has-icons-left" method="post" enctype="multipart/form-data" action="" style="bottom: 0px; margin-top:-20px;">
+                            {% csrf_token %}
+                            <div class="columns" style="width:70rem;">
+                                <div class="form-group column">
+                                    <br>
+                                    <div class="dropdown">
+                                        <button onclick="dropdownSearch('myDropdownOne')" class="dropbtn" type="button" id="asin-btn-1">Select ASIN 1</button>
+                                        <div id="myDropdownOne" class="dropdown-content">
+                                            <input type="text" placeholder="Search.." id="myInputOne" onkeyup="filterFunction('myInputOne', 'myDropdownOne', 'asin-dropdown-1')" name="retrieve-asin-data-1" required>
+                                            {% for asin in analyzed_asin_list %}
+                                                <button value="{{ asin }}" class="asin-dropdown-1" onClick="changeValue('myInputOne', 'myDropdownOne', 'asin-btn-1', '{{ asin }}')" type="button">{{ asin }}</button>
+                                            {% endfor %}
+                                        </div>
+                                    </div> 
+                                    <div class="search-button row btn-lg column" style="margin-top:-10px; position: relative; display: inline-block;">
+                                        <button type="submit" class="dropbtn" style="min-width:150px; min-height:10px;">Get Report</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <br><br>
+                    </div>
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div><!-- end col -->
+
+    <div class="col-xl-3 col-md-6" style="padding-right:25px;">
+        <!-- card -->
+        <div class="card card-h-100" style="min-height:195px;">
+            <!-- card body -->
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <span class="mb-3 lh-1 d-block" style="font-weight:bold; min-width:150px;">Rating / Reviews</span>
+                        <h4 class="mb-3">
+                            {{ rating }}
+                        </h4>
+                    </div>
+                    <div class="col-6">
+                        <div id="mini-chart2" data-colors='["#5156be"]' class="apex-charts mb-2"></div>
+                    </div>
+                </div>
+                <div class="text-nowrap">
+                    <span class="ms-1 text-muted font-size-13">{{ total_reviews }}</span>
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div><!-- end col-->
+
+    <div class="col-xl-6 col-md-6" style="padding-left:0px; padding-right:35px;">
+        <!-- card -->
+        <div class="card card-h-100" style="min-height:195px;">
+            <!-- card body -->
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <div style="margin-top:-60px; margin-bottom:-50px; margin-left:-10px;">{% include "web/amazon/components/asin_search.html" %}</div>
+                    </div>
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div><!-- end col -->
+</div><!-- end row-->
