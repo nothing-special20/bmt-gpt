@@ -1,6 +1,5 @@
 // initial configuration
-let totalPages = Math.ceil(reviewCount / resultsPerPage)  // set total number of pages
-
+// set total number of pages
 let currentPage = 1;  // set default/initial page
 
   // set default results per page
@@ -9,6 +8,9 @@ let currentPage = 1;  // set default/initial page
 function updateResultsPerPage(value) {
   resultsPerPage = value;
   totalPages = Math.ceil(reviewCount / resultsPerPage);  // update total number of pages
+  console.log('totalPages:\t', totalPages);
+  console.log('reviewCount:\t', reviewCount);
+    console.log('resultsPerPage:\t', resultsPerPage);
   currentPage = Math.min(currentPage, totalPages);  // reset current page to 1
   updatePagination();
   sendPostRequest(currentPage, rating=rating, resultsPerPage=value);
@@ -138,10 +140,14 @@ function sendPostRequest(pageNum, rating=null, resultsPerPage=10) {
     let asinCleaned = asin.replaceAll('&#x27;', "");
     asinCleaned = asinCleaned.replaceAll('[', "");
     asinCleaned = asinCleaned.replaceAll(']', "");
+
+    var keywordSearch = document.getElementById('review-search-keyword').value
+
     params.append('page-num', pageNum);
     params.append('retrieve-asin-data-1', asinCleaned);
     params.append('rating-filter', rating);
     params.append('results-per-page', resultsPerPage);
+    params.append('review-search-keyword', keywordSearch);
 
     fetch(paginator_url, {
         method: 'POST',
@@ -151,13 +157,25 @@ function sendPostRequest(pageNum, rating=null, resultsPerPage=10) {
         },
         body: params,
       })
-      .then(response => response.text()) // .text() instead of .json()
+      .then(response => response.text())
       .then(data => {
-        // Here you manipulate the DOM to update the page with the server response
         let reviewCards = document.getElementById('review-cards')
+        let jsVars = document.getElementById('js-vars')
+        // hide the old js vars
+        jsVars = ''
+
         var tempDOM = new DOMParser().parseFromString(data, 'text/html');
         let newReviewCards = tempDOM.getElementById('review-cards');
+        let newJsVars = tempDOM.getElementById('js-vars');
         reviewCards.innerHTML = newReviewCards.innerHTML;
+        // jimmy-rigged monstrosity to update the js vars
+        eval(newJsVars.innerHTML.replaceAll('let ', ""));
+        // eval('reviewCount = "108";')
+        
+
+        console.log('newJsVars.innerHTML:\n:\n', newJsVars.innerHTML);
+        console.log('reviewCount:\t', reviewCount)
+        console.log('resultsPerPage:\t', resultsPerPage)
       })
       .catch((error) => {
         console.error('Error:', error);

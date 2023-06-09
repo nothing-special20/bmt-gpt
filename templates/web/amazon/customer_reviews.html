@@ -30,21 +30,40 @@
                         <!-- card body -->
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col-12">
+                                <div class="col-6">
                                     <span class="mb-3 lh-1 d-block" style="font-weight:bold; min-width:150px;">
                                         Search by Rating
                                     </span>
-                                    <div class="search-button btn-lg col-4" style="margin-top:-10px; margin-left:10px;">
-                                        <button onclick="sendPostRequest({{page_num}}, rating=1, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">1 Star</button>
-                                        <button onclick="sendPostRequest({{page_num}}, rating=2, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">2 Stars</button>
-                                        <button onclick="sendPostRequest({{page_num}}, rating=3, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">3 Stars</button>
-                                        <button onclick="sendPostRequest({{page_num}}, rating=4, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">4 Stars</button>
-                                        <button onclick="sendPostRequest({{page_num}}, rating=5, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">5 Stars</button>
+                                    <div class="search-button btn-lg col-8" style="margin-top:-10px; margin-left:10px;">
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating='1,2,3,4,5', resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">All Reviews</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=1, resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">1 Star</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=2, resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">2 Stars</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=3, resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">3 Stars</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=4, resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">4 Stars</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=5, resultsPerPage={{resultsPerPage}}))" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">5 Stars</button>
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <div id="mini-chart2" data-colors='["#5156be"]' class="apex-charts mb-2"></div>
+                                    {% comment %} <form class="control has-icons-left d-flex" style="bottom: 0px;" method="post">
+                                        {% csrf_token %}
+                                        <div class="form-group col-6">
+                                            <input type="text" class="form-control darken-placeholder" id="review-search-keyword" name="review-search-keyword" placeholder="Search Keywords" style="min-height:50px;" value={{ review_search_keyword }}>
+                                        </div>
+                                        <div class="btn-lg col-6 d-flex align-items-center justify-content-center">
+                                            <button onclick="handleSearch(pageNum={{ page_num }}, rating={{rating}}, resultsPerPage={{resultsPerPage}})" class="dropbtn">Search</button>
+                                        </div>
+                                    </form> {% endcomment %}
+                                    <form class="control has-icons-left d-flex" style="bottom: 0px;" method="post">
+                                        {% csrf_token %}
+                                        <div class="form-group col-6">
+                                            <input type="text" class="form-control darken-placeholder" id="review-search-keyword" name="review-search-keyword" placeholder="Search Keywords" style="min-height:50px;" value={{ review_search_keyword }}>
+                                        </div>
+                                        <div class="btn-lg col-6 d-flex align-items-center justify-content-center">
+                                            <button type="button" onclick="handleSearch({{ page_num }}, {{ rating }}, {{ results_per_page }})" class="dropbtn">Search</button>
+                                        </div>
+                                    </form>                                    
                                 </div>
+                                
                             </div>
                         </div><!-- end card body -->
                     </div><!-- end card -->
@@ -95,36 +114,36 @@
       
     <!-- End Page-content -->
 <!-- end main content-->
-<script>
+<script id='js-vars'>
     var paginator_url = "{% url 'customer_insights:customer_reviews' request.team.slug %}"
     var csrftoken = "{{ csrf_token }}";
     var asin = "{{ selected_asin }}";
-    var reviewCount = "{{ review_count }}";
+    let reviewCount = "{{ review_count }}";
     let resultsPerPage = "{{ results_per_page }}";
+    let totalPages = Math.ceil(reviewCount / resultsPerPage)
     var pageNum = "{{ page_num }}";
     var rating = "{{ rating }}";
+    var reviewSearchKeyword = "{{ review_search_keyword }}";
 </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 <script src="{% static "js/custom.js" %}"></script>
 <script src="{% static "js/paginator.js" %}"></script>
+<script>
+    function handleSearch(pageNum=pageNum, rating=rating, resultsPerPage=resultsPerPage) {
+      // prevent the form from submitting
+      event.preventDefault();
 
-<script type="text/javascript">
-    $(document).on('submit','#search-asin-form', async function(e) {
-        $.ajax({
-            type:'POST',
-            dataType: 'json',
-            url: "{% url 'customer_insights:fetch_new_asin_data' request.team.slug %}",
-            async: false,
-            data:
-            {
-                search_asin:$("#search-asin").val(),
-                search_type:$("#search-type").val(),
-                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-        });
+      // get the input value
+      var keywordSearch = document.getElementById('review-search-keyword').value;
+
+      console.log('pageNum=', pageNum, 'rating=', rating, 'resultsPerPage=', resultsPerPage, 'keyword=', keywordSearch)
+    
+      // call sendPostRequest with the input value
+      sendPostRequest(pageNum=pageNum, rating=rating, resultsPerPage=resultsPerPage, keyword=keywordSearch)
+    }
 </script>
+
 
 {% comment %} <script>
     function changePage(event, pageNum) {
@@ -145,23 +164,6 @@
      
     }
 </script> {% endcomment %}
-
-<script type="text/javascript">
-    $(document).on('submit','#search-asin-form', async function(e) {
-        $.ajax({
-            type:'POST',
-            dataType: 'json',
-            url: "{% url 'customer_insights:fetch_new_asin_data' request.team.slug %}",
-            async: false,
-            data:
-            {
-                search_asin:$("#search-asin").val(),
-                search_type:$("#search-type").val(),
-                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-        });
-</script>
 
 
 <style>

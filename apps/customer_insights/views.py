@@ -192,27 +192,31 @@ def customer_reviews(request, team_slug):
 
         page_num = 1
         rating = [1,2,3,4,5]
+        review_search_keyword = ''
 
         if 'page-num' in request.POST:
             page_num = int(request.POST.get('page-num'))
 
         if 'rating-filter' in request.POST:
             _rating = request.POST.get('rating-filter')
-            if '[' in _rating:
-                rating = json.loads(_rating)
+            if ',' in _rating:
+                rating = [1,2,3,4,5]
             elif _rating != 'null':
                 rating = [int(_rating)]
 
         if 'results-per-page' in request.POST:
             results_per_page = int(request.POST.get('results-per-page'))
 
+        if 'review-search-keyword' in request.POST:
+            review_search_keyword = request.POST.get('review-search-keyword')
+
         if type(asin) != list:
             asin = [asin]
 
-        review_count = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains='glove').count()
+        review_count = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains=review_search_keyword).count()
 
         rev_values = ['ASIN_ORIGINAL_ID', 'REVIEW_ID', 'RATING', 'REVIEW_DATE', 'TITLE', 'REVIEW', 'VERIFIED_PURCHASE']
-        processed_reviews = list(ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains='glove').values(*rev_values)[((page_num-1)*results_per_page):(page_num*results_per_page)])
+        processed_reviews = list(ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains=review_search_keyword).values(*rev_values)[((page_num-1)*results_per_page):(page_num*results_per_page)])
 
         context = {
             **context,
@@ -222,6 +226,7 @@ def customer_reviews(request, team_slug):
             'page_num': page_num,
             'rating': rating,
             'results_per_page': results_per_page,
+            'review_search_keyword': review_search_keyword,
         }
 
     return render(request, 'web/amazon/customer_reviews.html', context)
