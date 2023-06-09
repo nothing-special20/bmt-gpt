@@ -3,24 +3,24 @@ from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 
-import os
+import math
 import re
 import json
-import math
 import pandas as pd
 from datetime import datetime
+from celery import group
 
 from asgiref.sync import sync_to_async
 
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-from .functions_ra import get_reviews, get_keyword_details, process_reviews, store_processed_reviews
+from .functions_ra import get_keyword_details
 from .functions_other import rate_limiter, asin_list_maker, asin_list_maker_async, word_count_categories, customer_sentinment_data
-from .functions_ml import most_common_words, lemmatize, sampled_phrases, create_topics, categorize_common_words
+from .functions_ml import most_common_words, sampled_phrases, create_topics
 from .functions_visualizations import bar_chart
-from .models import ProcessedProductReviews, Asins, ReviewsAnalyzedInternalModels, CategorizedWords, UserRequests
-from .tasks import assign_topics_to_reviews
+from .models import ProcessedProductReviews, Asins, UserRequests
+from .tasks import assign_topics_to_reviews, store_and_process_reviews, categorize_words
 
 def fetch_new_asin_data(request, team_slug):
     if request.user.is_authenticated:
@@ -60,22 +60,12 @@ def fetch_new_asin_data(request, team_slug):
                 )
                 user_request_doc.save()
 
-                for pg_num in range(1, 2):
-                    raw_reviews = get_reviews(asin, pg_num)
-                    proc_reviews = process_reviews(raw_reviews)
-                    store_processed_reviews(proc_reviews)
-                    _lemmatized_reviews = []
-                    for x in proc_reviews:
-                        try:
-                            rev_id = ProcessedProductReviews.objects.get(ASIN_ORIGINAL_ID=x['ASIN_ORIGINAL_ID'], REVIEW_ID=x['REVIEW_ID'], reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW__isnull=True)
-                            _lemmatized_rev = {'REVIEW_ID': rev_id, 'LEMMA': lemmatize(x['REVIEW'])}
-                            _lemmatized_reviews.append(_lemmatized_rev)
-                        except:
-                            print('Review already lemmatized')
-
-                    for _rev in _lemmatized_reviews:
-                        ReviewsAnalyzedInternalModels.objects.filter(PROCESSED_RECORD_ID=_rev['REVIEW_ID']).update_or_create(PROCESSED_RECORD_ID=_rev['REVIEW_ID'], LEMMATIZED_REVIEW=_rev['LEMMA'])
-                        
+                max_page = 20
+                # max_page = min(math.ceil(percent_of_reviews_with_comments * total_reviews / 10), 200)
+                # store_and_process_reviews.delay(asin, pg_num)
+                job_list = group([store_and_process_reviews.subtask((asin, pg_num)) for pg_num in range(1, max_page + 1)])
+                job_list.apply_async()
+                    
             processed_reviews = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID=asin).values('RECORD_ID', 'REVIEW', 'reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW').distinct()
             processed_reviews = list(processed_reviews)
             lemmatized_reviews = [x['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'] for x in processed_reviews]
@@ -90,14 +80,9 @@ def fetch_new_asin_data(request, team_slug):
 
             Asins.objects.filter(ASIN=asin).update(TOPICS=topics)
 
-            assign_topics_to_reviews(processed_reviews, topics)
+            assign_topics_to_reviews.delay(processed_reviews, topics)
 
-            categorized_words = categorize_common_words(review_top_nouns_adjs_verbs)
-
-            for category in categorized_words:
-                for word in categorized_words[category]:
-                    word_doc = CategorizedWords(WORD=word, CATEGORY=category)
-                    word_doc.save()
+            categorize_words.delay(review_top_nouns_adjs_verbs)
 
         print(f"Fetching data for {search_type}: {search_value}.")
         messages.success(request, f"Fetching data for {search_type}: {search_value}. Your report will be ready in a few minutes.")
