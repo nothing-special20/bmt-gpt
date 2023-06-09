@@ -1,5 +1,6 @@
 // initial configuration
-// let totalPages = 100;  // set total number of pages
+let totalPages = Math.ceil(reviewCount / resultsPerPage)  // set total number of pages
+
 let currentPage = 1;  // set default/initial page
 
   // set default results per page
@@ -7,8 +8,8 @@ let currentPage = 1;  // set default/initial page
 // function to update results per page
 function updateResultsPerPage(value) {
   resultsPerPage = value;
-  totalPages = Math.ceil(totalPages / resultsPerPage);  // update total number of pages
-  currentPage = 1;  // reset current page to 1
+  totalPages = Math.ceil(reviewCount / resultsPerPage);  // update total number of pages
+  currentPage = Math.min(currentPage, totalPages);  // reset current page to 1
   updatePagination();
   sendPostRequest(currentPage, rating=rating, resultsPerPage=value);
 }
@@ -26,7 +27,7 @@ function updatePagination() {
     event.preventDefault();
     currentPage = 1;
     updatePagination();
-    sendPostRequest(currentPage);
+    sendPostRequest(currentPage, rating=rating, resultsPerPage=resultsPerPage);
   };
   paginationDiv.appendChild(firstButton);
 
@@ -39,7 +40,7 @@ function updatePagination() {
     if (currentPage > 1) {
       currentPage--;
       updatePagination();
-      sendPostRequest(currentPage);
+      sendPostRequest(currentPage, rating=rating, resultsPerPage=resultsPerPage);
     }
   };
   paginationDiv.appendChild(prevButton);
@@ -50,12 +51,13 @@ function updatePagination() {
 
   // adjust if we're too close to the start
   if (currentPage <= 3) {
-    endPage = 5;
+    endPage = Math.min(5, totalPages);
+    // endPage = 5;
   }
 
   // adjust if we're too close to the end
   if (currentPage >= totalPages - 2) {
-    startPage = totalPages - 4;
+    startPage = Math.max(totalPages - 4, 1);
   }
 
   // add page number buttons
@@ -73,7 +75,7 @@ function updatePagination() {
       event.preventDefault();
       currentPage = i;
       updatePagination();
-      sendPostRequest(i);
+      sendPostRequest(i, rating=rating, resultsPerPage=resultsPerPage);
     };
     
     paginationDiv.appendChild(pageButton);
@@ -88,7 +90,7 @@ function updatePagination() {
     if (currentPage < totalPages) {
       currentPage++;
       updatePagination();
-      sendPostRequest(currentPage);
+      sendPostRequest(currentPage, rating=rating, resultsPerPage=resultsPerPage);
     }
   };
   paginationDiv.appendChild(nextButton);
@@ -101,9 +103,33 @@ function updatePagination() {
     event.preventDefault();
     currentPage = totalPages;
     updatePagination();
-    sendPostRequest(currentPage);
+    sendPostRequest(currentPage, rating=rating, resultsPerPage=resultsPerPage);
   };
   paginationDiv.appendChild(lastButton);
+
+  Node.prototype.insertAfter = function(newNode, referenceNode) {
+    this.insertBefore(newNode, referenceNode.nextSibling);
+    };
+
+    let selectField = document.createElement('select');
+    selectField.id = "resultsPerPage";
+    selectField.onchange = function () {
+        updateResultsPerPage(this.value);
+    };
+
+    let options = [10, 25, 50];  // options for results per page
+    for (let i = 0; i < options.length; i++) {
+    let option = document.createElement('option');
+        option.value = options[i];
+        option.text = options[i];
+        if (option.value === resultsPerPage) {
+            option.selected = true; // This makes the option selected by default
+        }
+        selectField.appendChild(option);
+    }
+
+    // let paginationDiv = document.querySelector('.pagination');
+    paginationDiv.insertAfter(selectField, paginationDiv.lastChild);  // insert after paginator
 }
 
 // function to send the POST request
@@ -116,8 +142,6 @@ function sendPostRequest(pageNum, rating=null, resultsPerPage=10) {
     params.append('retrieve-asin-data-1', asinCleaned);
     params.append('rating-filter', rating);
     params.append('results-per-page', resultsPerPage);
-
-    console.log('sendPostRequest params:', pageNum, asinCleaned, rating)
 
     fetch(paginator_url, {
         method: 'POST',
@@ -135,37 +159,14 @@ function sendPostRequest(pageNum, rating=null, resultsPerPage=10) {
         let newReviewCards = tempDOM.getElementById('review-cards');
         reviewCards.innerHTML = newReviewCards.innerHTML;
       })
-    //   .then(data => console.log(data))
       .catch((error) => {
         console.error('Error:', error);
       });
       
     updatePagination();
-    console.log('updatePagination();')
 }
 
 // initial call to update the pagination buttons
 if (totalPages > 0 ) {
-    updatePagination();
-    Node.prototype.insertAfter = function(newNode, referenceNode) {
-        this.insertBefore(newNode, referenceNode.nextSibling);
-    };
-    
-    let selectField = document.createElement('select');
-    selectField.id = "resultsPerPage";
-    selectField.onchange = function () {
-      updateResultsPerPage(this.value);
-    };
-    
-    let options = [10, 25, 50];  // options for results per page
-    for (let i = 0; i < options.length; i++) {
-      let option = document.createElement('option');
-      option.value = options[i];
-      option.text = options[i];
-      selectField.appendChild(option);
-    }
-    
-    let paginationDiv = document.querySelector('.pagination');
-    paginationDiv.insertAfter(selectField, paginationDiv.lastChild);  // insert after paginator
-    
+    updatePagination();    
 }

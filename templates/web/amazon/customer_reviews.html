@@ -35,11 +35,11 @@
                                         Search by Rating
                                     </span>
                                     <div class="search-button btn-lg col-4" style="margin-top:-10px; margin-left:10px;">
-                                        <button onclick="sendPostRequest({{page_num}}, 1)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">1 Star</button>
-                                        <button onclick="sendPostRequest({{page_num}}, 2)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">2 Stars</button>
-                                        <button onclick="sendPostRequest({{page_num}}, 3)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">3 Stars</button>
-                                        <button onclick="sendPostRequest({{page_num}}, 4)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">4 Stars</button>
-                                        <button onclick="sendPostRequest({{page_num}}, 5)" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">5 Stars</button>
+                                        <button onclick="sendPostRequest({{page_num}}, rating=1, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">1 Star</button>
+                                        <button onclick="sendPostRequest({{page_num}}, rating=2, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">2 Stars</button>
+                                        <button onclick="sendPostRequest({{page_num}}, rating=3, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">3 Stars</button>
+                                        <button onclick="sendPostRequest({{page_num}}, rating=4, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">4 Stars</button>
+                                        <button onclick="sendPostRequest({{page_num}}, rating=5, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">5 Stars</button>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -99,9 +99,9 @@
     var paginator_url = "{% url 'customer_insights:customer_reviews' request.team.slug %}"
     var csrftoken = "{{ csrf_token }}";
     var asin = "{{ selected_asin }}";
-    var totalPages = "{{ total_pages }}";
+    var reviewCount = "{{ review_count }}";
     let resultsPerPage = "{{ results_per_page }}";
-    var page_num = "{{ page_num }}";
+    var pageNum = "{{ page_num }}";
     var rating = "{{ rating }}";
 </script>
 
@@ -194,6 +194,10 @@
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
     }
-    </style>
+
+    #resultsPerPage {
+        height: 45px;
+    }
+</style>
 
 {% endblock %}

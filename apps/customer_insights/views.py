@@ -1,8 +1,7 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
-from django.db.models import Count
 
 import os
 import re
@@ -185,7 +184,7 @@ def customer_reviews(request, team_slug):
     
     user = request.user.username
     asin_list = asin_list_maker(user)
-    context = {'analyzed_asin_list': asin_list, 'totalPages': 0}
+    context = {'analyzed_asin_list': asin_list, 'total_pages': 0}
     results_per_page = 10
     
     if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
@@ -210,8 +209,7 @@ def customer_reviews(request, team_slug):
         if type(asin) != list:
             asin = [asin]
 
-        processed_reviews_count = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains='glove').values('REVIEW_ID').annotate(count=Count('RECORD_ID'))
-        total_pages = math.ceil(len(processed_reviews_count) / results_per_page)
+        review_count = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains='glove').count()
 
         rev_values = ['ASIN_ORIGINAL_ID', 'REVIEW_ID', 'RATING', 'REVIEW_DATE', 'TITLE', 'REVIEW', 'VERIFIED_PURCHASE']
         processed_reviews = list(ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID__in=asin, RATING__in=rating, REVIEW__contains='glove').values(*rev_values)[((page_num-1)*results_per_page):(page_num*results_per_page)])
@@ -220,7 +218,7 @@ def customer_reviews(request, team_slug):
             **context,
             'selected_asin': asin,
             'processed_reviews': processed_reviews,
-            'total_pages': total_pages,
+            'review_count': review_count,
             'page_num': page_num,
             'rating': rating,
             'results_per_page': results_per_page,
