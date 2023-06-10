@@ -8,7 +8,7 @@ import re
 import json
 import pandas as pd
 from datetime import datetime
-from celery import group
+from celery import group, chord, chain
 
 from asgiref.sync import sync_to_async
 
@@ -17,10 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 from .functions_ra import get_keyword_details
 from .functions_other import rate_limiter, asin_list_maker, asin_list_maker_async, word_count_categories, customer_sentinment_data
-from .functions_ml import most_common_words, sampled_phrases, create_topics
 from .functions_visualizations import bar_chart
-from .models import ProcessedProductReviews, Asins, UserRequests
-from .tasks import assign_topics_to_reviews, store_and_process_reviews, categorize_words
+from .models import ProcessedProductReviews, UserRequests, Asins
+from .tasks import assign_topics_to_reviews, store_and_process_reviews, categorize_words, store_most_common_words, create_and_store_topics
 
 def fetch_new_asin_data(request, team_slug):
     if request.user.is_authenticated:
@@ -60,29 +59,29 @@ def fetch_new_asin_data(request, team_slug):
                 )
                 user_request_doc.save()
 
-                max_page = 20
+                max_page = 4
                 # max_page = min(math.ceil(percent_of_reviews_with_comments * total_reviews / 10), 200)
                 # store_and_process_reviews.delay(asin, pg_num)
-                job_list = group([store_and_process_reviews.subtask((asin, pg_num)) for pg_num in range(1, max_page + 1)])
-                job_list.apply_async()
-                    
-            processed_reviews = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID=asin).values('RECORD_ID', 'REVIEW', 'reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW').distinct()
-            processed_reviews = list(processed_reviews)
-            lemmatized_reviews = [x['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'] for x in processed_reviews]
+                # store_and_process_reviews_jobs = group([store_and_process_reviews.s(asin, pg_num) for pg_num in range(1, max_page + 1)])
+                # store_and_process_reviews_jobs.apply_async()
+                store_and_process_reviews_jobs = [store_and_process_reviews.s(asin, pg_num) for pg_num in range(1, max_page + 1)]
+        
+                # chord(group(chord(store_and_process_reviews_jobs)(store_most_common_words.s())), create_and_store_topics.s())
+                # chord(store_and_process_reviews_jobs, store_most_common_words.s(), create_and_store_topics.s()).apply_async()
 
-            review_top_nouns_adjs_verbs = most_common_words(lemmatized_reviews, ['NOUN', 'ADJ', 'VERB'])
-            Asins.objects.filter(ASIN=asin).update(MOST_COMMON_WORDS=review_top_nouns_adjs_verbs)
+                callback_chain = chain(store_most_common_words.s(), create_and_store_topics.s())
 
-            sample_phrase_string = sampled_phrases(review_top_nouns_adjs_verbs, lemmatized_reviews)
 
-            topics = create_topics(sample_phrase_string)
-            topics = [x for x in topics if x != '']
+                chord(store_and_process_reviews_jobs)(callback_chain)
 
-            Asins.objects.filter(ASIN=asin).update(TOPICS=topics)
+                # 
+            
+                # need to somehow await job processing completion before continuing
+                # https://ask.github.io/celery/userguide/tasksets.html#chords
 
-            assign_topics_to_reviews.delay(processed_reviews, topics)
+                # assign_topics_to_reviews.delay(processed_reviews, topics)
 
-            categorize_words.delay(review_top_nouns_adjs_verbs)
+                # categorize_words.delay(review_top_nouns_adjs_verbs)
 
         print(f"Fetching data for {search_type}: {search_value}.")
         messages.success(request, f"Fetching data for {search_type}: {search_value}. Your report will be ready in a few minutes.")

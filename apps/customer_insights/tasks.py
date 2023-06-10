@@ -5,12 +5,12 @@ from celery import group
 
 from datetime import datetime
 
-from .models import ReviewsAnalyzedInternalModels, ProcessedProductReviews, CategorizedWords
-from .functions_ml import subtopic_labler, lemmatize, categorize_common_words
+from .models import ReviewsAnalyzedInternalModels, ProcessedProductReviews, CategorizedWords, Asins
+from .functions_ml import subtopic_labler, lemmatize, categorize_common_words, most_common_words, sampled_phrases, create_topics
 from .functions_ra import get_reviews, process_reviews, store_processed_reviews
 
 from celery import Celery
-app = Celery('tasks', broker=settings.CELERY_BROKER_URL)
+app = Celery('tasks', broker=settings.CELERY_BROKER_URL, backend=settings.CELERY_RESULT_BACKEND)
 
 @app.task
 def assign_topics_to_reviews(processed_reviews, topics):
@@ -52,6 +52,8 @@ def store_and_process_reviews(asin, pg_num):
     for _rev in _lemmatized_reviews:
         ReviewsAnalyzedInternalModels.objects.filter(PROCESSED_RECORD_ID=_rev['REVIEW_ID']).update_or_create(PROCESSED_RECORD_ID=_rev['REVIEW_ID'], LEMMATIZED_REVIEW=_rev['LEMMA'])
 
+    #the only purpose of this return statement is to be passed to the store_most_common_words task
+    return asin
 
 @app.task
 def categorize_words(review_top_nouns_adjs_verbs):
@@ -60,3 +62,36 @@ def categorize_words(review_top_nouns_adjs_verbs):
         for word in categorized_words[category]:
             word_doc = CategorizedWords(WORD=word, CATEGORY=category)
             word_doc.save()
+
+
+@app.task
+def store_most_common_words(asin):
+    asin = asin[0]
+    processed_reviews = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID=asin).values('RECORD_ID', 'REVIEW', 'reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW').distinct()
+    processed_reviews = list(processed_reviews)
+    lemmatized_reviews = [x['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'] for x in processed_reviews]
+
+    review_top_nouns_adjs_verbs = most_common_words(lemmatized_reviews, ['NOUN', 'ADJ', 'VERB'])
+    print('lol')
+    Asins.objects.filter(ASIN=asin).update(MOST_COMMON_WORDS=review_top_nouns_adjs_verbs)
+    print('roar')
+
+    #the only purpose of this return statement is to be passed to the create_and_store_topics task
+    return asin
+
+
+@app.task
+def create_and_store_topics(asin):
+    review_top_nouns_adjs_verbs = list(Asins.objects.get(ASIN=asin).MOST_COMMON_WORDS) #.values('MOST_COMMON_WORDS')
+    review_top_nouns_adjs_verbs = [eval(x) for x in review_top_nouns_adjs_verbs]
+
+    processed_reviews = ProcessedProductReviews.objects.filter(ASIN_ORIGINAL_ID=asin).values('RECORD_ID', 'REVIEW', 'reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW').distinct()
+    processed_reviews = list(processed_reviews)
+    lemmatized_reviews = [x['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'] for x in processed_reviews]
+
+    sample_phrase_string = sampled_phrases(review_top_nouns_adjs_verbs, lemmatized_reviews)
+
+    topics = create_topics(sample_phrase_string)
+    topics = [x for x in topics if x != '']
+
+    Asins.objects.filter(ASIN=asin).update(TOPICS=topics)
