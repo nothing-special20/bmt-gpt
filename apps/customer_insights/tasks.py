@@ -13,29 +13,6 @@ from celery import Celery
 app = Celery('tasks', broker=settings.CELERY_BROKER_URL, backend=settings.CELERY_RESULT_BACKEND)
 
 @app.task
-def assign_topics_to_reviews(processed_reviews, topics):
-    classifier = pipeline("zero-shot-classification", model="valhalla/distilbart-mnli-12-1")
-
-    for proc_review in processed_reviews:
-        _assign_topic_to_review(classifier, proc_review, topics)
-        
-@app.task
-def _assign_topic_to_review(classifier, proc_review, topics):
-    start_time = datetime.now()
-    try:
-        topic = classifier(proc_review['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'], candidate_labels=topics)['labels'][0]
-        subtopic = subtopic_labler(proc_review['REVIEW'], topic) 
-        ReviewsAnalyzedInternalModels.objects.filter(PROCESSED_RECORD_ID=proc_review['RECORD_ID']).update(TOPIC=topic, SUB_TOPIC=subtopic)
-    except:
-        print(traceback.format_exc())
-    
-    time_taken = str(datetime.now() - start_time)
-    lemma_length = len(proc_review['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'])
-    label_length = len(topics)
-
-    print(f'Topic classification for lemma with {lemma_length} characters and {label_length} topics took: {time_taken}')
-
-@app.task
 def store_and_process_reviews(asin, pg_num):
     raw_reviews = get_reviews(asin, pg_num)
     proc_reviews = process_reviews(raw_reviews)
@@ -79,7 +56,6 @@ def store_most_common_words(asin):
     #the only purpose of this return statement is to be passed to the create_and_store_topics task
     return asin
 
-
 @app.task
 def create_and_store_topics(asin):
     review_top_nouns_adjs_verbs = list(Asins.objects.get(ASIN=asin).MOST_COMMON_WORDS) #.values('MOST_COMMON_WORDS')
@@ -95,3 +71,31 @@ def create_and_store_topics(asin):
     topics = [x for x in topics if x != '']
 
     Asins.objects.filter(ASIN=asin).update(TOPICS=topics)
+
+    return processed_reviews, topics
+
+@app.task
+def assign_topics_to_reviews(*args):
+    args = args[0]
+    processed_reviews = args[0]
+    topics = args[1]
+    classifier = pipeline("zero-shot-classification", model="valhalla/distilbart-mnli-12-1")
+
+    for proc_review in processed_reviews:
+        _assign_topic_to_review(classifier, proc_review, topics)
+        
+@app.task
+def _assign_topic_to_review(classifier, proc_review, topics):
+    start_time = datetime.now()
+    try:
+        topic = classifier(proc_review['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'], candidate_labels=topics)['labels'][0]
+        subtopic = subtopic_labler(proc_review['REVIEW'], topic) 
+        ReviewsAnalyzedInternalModels.objects.filter(PROCESSED_RECORD_ID=proc_review['RECORD_ID']).update(TOPIC=topic, SUB_TOPIC=subtopic)
+    except:
+        print(traceback.format_exc())
+    
+    time_taken = str(datetime.now() - start_time)
+    lemma_length = len(proc_review['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'])
+    label_length = len(topics)
+
+    print(f'Topic classification for lemma with {lemma_length} characters and {label_length} topics took: {time_taken}')

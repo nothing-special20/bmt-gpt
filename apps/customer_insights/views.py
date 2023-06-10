@@ -60,17 +60,9 @@ def fetch_new_asin_data(request, team_slug):
                 user_request_doc.save()
 
                 max_page = 4
-                # max_page = min(math.ceil(percent_of_reviews_with_comments * total_reviews / 10), 200)
-                # store_and_process_reviews.delay(asin, pg_num)
-                # store_and_process_reviews_jobs = group([store_and_process_reviews.s(asin, pg_num) for pg_num in range(1, max_page + 1)])
-                # store_and_process_reviews_jobs.apply_async()
                 store_and_process_reviews_jobs = [store_and_process_reviews.s(asin, pg_num) for pg_num in range(1, max_page + 1)]
-        
-                # chord(group(chord(store_and_process_reviews_jobs)(store_most_common_words.s())), create_and_store_topics.s())
-                # chord(store_and_process_reviews_jobs, store_most_common_words.s(), create_and_store_topics.s()).apply_async()
 
-                callback_chain = chain(store_most_common_words.s(), create_and_store_topics.s())
-
+                callback_chain = chain(store_most_common_words.s(), create_and_store_topics.s(), assign_topics_to_reviews.s())
 
                 chord(store_and_process_reviews_jobs)(callback_chain)
 
