@@ -9,10 +9,7 @@ from pathlib import Path
 
 from datetime import datetime
 
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-
-from .models import Asins, ProcessedProductReviews
+from .models import Asins, ProcessedProductReviews, ProcessedProductDetails
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,7 +50,7 @@ def get_reviews(asin, pg_num):
 
     return response
 
-def _get_single_product_detail(asin):
+def _get_single_product_details(asin):
     url = "https://amazon23.p.rapidapi.com/product-details"
 
     querystring = {
@@ -70,11 +67,11 @@ def _get_single_product_detail(asin):
 
     return response.text
 
-def get_single_product_detail(asin):
+def get_single_product_details(asin):
     counter = 0
     while counter < 5:
         try:
-            response = _get_single_product_detail(asin)
+            response = _get_single_product_details(asin)
             _response = json.loads(response)
             product_details = _response['result'][0]
             break
@@ -149,3 +146,33 @@ def store_processed_reviews(reviews):
             doc.save()
         except:
             print(traceback.format_exc())
+
+def store_single_product_details(details):
+    doc = ProcessedProductDetails(
+        ASIN_ORIGINAL_ID = Asins.objects.get(ASIN=details['asin']),
+        COUNTRY = 'USA',
+        TITLE = details['title'],
+        DESCRIPTION = details['description'],
+        FEATURE_BULLETS = details['feature_bullets'],
+        VARIANTS = details['variants'],
+        CATEGORIES = details['categories'],
+        URL = details['url'],
+        REVIEWS = details['reviews'],
+        ITEM_AVAILABLE = details['item_available'],
+        PRICE = details['price'],
+        BESTSELLERS_RANK = details['bestsellers_rank'],
+        MAIN_IMAGE = details['main_image'],
+        TOTAL_IMAGES = details['total_images'],
+        IMAGES = details['images'],
+        TOTAL_VIDEOS = details['total_videos'],
+        VIDEOS = details['videos'],
+        DELIVERY_MESSAGE = details['delivery_message'],
+        PRODUCT_INFORMATION = details['product_information'],
+        BADGES = details['badges'],
+        SPONSORED_PRODUCTS = details['sponsored_products'],
+        ALSO_BOUGHT = details['also_bought'],
+        OTHER_SELLERS = details['other_sellers'],
+        LOAD_DATE = datetime.now(),
+    )
+
+    doc.save()
