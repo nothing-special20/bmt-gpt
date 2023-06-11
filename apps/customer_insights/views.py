@@ -15,11 +15,11 @@ from asgiref.sync import sync_to_async
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-from .functions_ra import get_keyword_details
+from .functions_ra import get_keyword_details, get_single_product_details, store_single_product_details
 from .functions_other import rate_limiter, asin_list_maker, asin_list_maker_async, word_count_categories, customer_sentinment_data
 from .functions_visualizations import bar_chart
 from .models import ProcessedProductReviews, UserRequests, Asins
-from .tasks import assign_topics_to_reviews, store_and_process_reviews, categorize_words, store_most_common_words, create_and_store_topics
+from .tasks import assign_topics_to_reviews_main, store_and_process_reviews, categorize_words, store_most_common_words, create_and_store_topics
 
 def fetch_new_asin_data(request, team_slug):
     if request.user.is_authenticated:
@@ -59,10 +59,13 @@ def fetch_new_asin_data(request, team_slug):
                 )
                 user_request_doc.save()
 
-                max_page = 4
+                product_details = get_single_product_details(asin)
+                store_single_product_details(product_details)
+
+                max_page = 30
                 store_and_process_reviews_jobs = [store_and_process_reviews.s(asin, pg_num) for pg_num in range(1, max_page + 1)]
 
-                callback_chain = chain(store_most_common_words.s(), create_and_store_topics.s(), assign_topics_to_reviews.s())
+                callback_chain = chain(store_most_common_words.s(), create_and_store_topics.s(), assign_topics_to_reviews_main.s())
 
                 chord(store_and_process_reviews_jobs)(callback_chain)
 
@@ -181,7 +184,9 @@ def customer_reviews(request, team_slug):
                 rating = [int(_rating)]
 
         if 'results-per-page' in request.POST:
-            results_per_page = int(request.POST.get('results-per-page'))
+            _results_per_page = int(request.POST.get('results-per-page'))
+            if _results_per_page != '':
+                results_per_page = _results_per_page
 
         if 'review-search-keyword' in request.POST:
             review_search_keyword = request.POST.get('review-search-keyword')

@@ -2,13 +2,19 @@ import spacy
 import re
 import pandas as pd
 import json
+import requests
+import environ
 
 from langchain.llms import OpenAI
 from langchain import PromptTemplate, LLMChain
 
 from collections import Counter
+from datetime import datetime
 
 spacy_nlp = spacy.load("en_core_web_md")
+
+env = environ.Env()
+HUGGINGFACEHUB_API_TOKEN = env('HUGGINGFACEHUB_API_TOKEN', default='')
 
 
 def remove_stops(doc):
@@ -115,3 +121,24 @@ def categorize_common_words(common_words):
     categorized_words = json.loads(categorized_words)
 
     return categorized_words
+
+
+def hf_inference_query(payload, model_id):
+    start_time = datetime.now()
+    headers = {"Authorization": f"Bearer {HUGGINGFACEHUB_API_TOKEN}"}
+    API_URL = f"https://api-inference.huggingface.co/models/{model_id}"
+    response = requests.post(API_URL, headers=headers, json=payload)
+    print(str(datetime.now() - start_time))
+    return response.json()
+
+def hf_topic_classification(review, topics):
+    payload = {
+        "inputs": review,
+        "parameters": {
+            "candidate_labels": topics,
+            "task": "zero-shot-classification"
+        }
+    }
+
+    model_id = 'valhalla/distilbart-mnli-12-1'
+    return hf_inference_query(payload, model_id)

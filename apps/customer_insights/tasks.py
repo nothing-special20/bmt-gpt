@@ -1,16 +1,20 @@
 from django.conf import settings
 from transformers import pipeline
 import traceback
+
 from celery import group
 
 from datetime import datetime
 
 from .models import ReviewsAnalyzedInternalModels, ProcessedProductReviews, CategorizedWords, Asins
-from .functions_ml import subtopic_labler, lemmatize, categorize_common_words, most_common_words, sampled_phrases, create_topics
+from .functions_ml import subtopic_labler, lemmatize, categorize_common_words, most_common_words, sampled_phrases, create_topics, hf_topic_classification
 from .functions_ra import get_reviews, process_reviews, store_processed_reviews
 
 from celery import Celery
 app = Celery('tasks', broker=settings.CELERY_BROKER_URL, backend=settings.CELERY_RESULT_BACKEND)
+
+def staggered_list_splitter(list, n):
+    return [list[i::n] for i in range(n)]
 
 @app.task
 def store_and_process_reviews(asin, pg_num):
@@ -75,20 +79,29 @@ def create_and_store_topics(asin):
     return processed_reviews, topics
 
 @app.task
-def assign_topics_to_reviews(*args):
+def assign_topics_to_reviews_main(*args):
     args = args[0]
     processed_reviews = args[0]
     topics = args[1]
-    classifier = pipeline("zero-shot-classification", model="valhalla/distilbart-mnli-12-1")
+
+    processed_reviews_sublists = staggered_list_splitter(processed_reviews, 4)
+    
+    job_list_extract_nouns_adjectives_from_reviews = group([assign_topics_to_reviews_loop.subtask((pr_sublist, topics)) for pr_sublist in processed_reviews_sublists])
+    job_list_extract_nouns_adjectives_from_reviews.apply_async()
+
+@app.task
+def assign_topics_to_reviews_loop(processed_reviews, topics):
+    # classifier = pipeline("zero-shot-classification", model="valhalla/distilbart-mnli-12-1")
 
     for proc_review in processed_reviews:
-        _assign_topic_to_review(classifier, proc_review, topics)
+        _assign_topic_to_review('classifier', proc_review, topics)
         
 @app.task
 def _assign_topic_to_review(classifier, proc_review, topics):
     start_time = datetime.now()
     try:
-        topic = classifier(proc_review['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'], candidate_labels=topics)['labels'][0]
+        # topic = classifier(proc_review['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'], candidate_labels=topics)['labels'][0]
+        topic = hf_topic_classification(proc_review['reviewsanalyzedinternalmodels__LEMMATIZED_REVIEW'], topics)['labels'][0]
         subtopic = subtopic_labler(proc_review['REVIEW'], topic) 
         ReviewsAnalyzedInternalModels.objects.filter(PROCESSED_RECORD_ID=proc_review['RECORD_ID']).update(TOPIC=topic, SUB_TOPIC=subtopic)
     except:
