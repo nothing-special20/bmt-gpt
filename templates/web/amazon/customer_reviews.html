@@ -35,12 +35,12 @@
                                         Search by Rating
                                     </span>
                                     <div class="search-button btn-lg col-9" style="margin-top:-10px; margin-left:10px;">
-                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating='1,2,3,4,5', resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">All Reviews</button>
-                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=1, resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">1 Star</button>
-                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=2, resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:40px; min-height:10px; margin-bottom:-10px;">2 Stars</button>
-                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=3, resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:40px; min-height:10px; margin-bottom:-10px;">3 Stars</button>
-                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=4, resultsPerPage={{resultsPerPage}})" class="dropbtn" style="min-width:40px; min-height:10px; margin-bottom:-10px;">4 Stars</button>
-                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=5, resultsPerPage={{resultsPerPage}}))" class="dropbtn" style="min-width:40px; min-height:10px; margin-bottom:-10px;">5 Stars</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating='1,2,3,4,5', resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">All Reviews</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=1, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:50px; min-height:10px; margin-bottom:-10px;">1 Star</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=2, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:40px; min-height:10px; margin-bottom:-10px;">2 Stars</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=3, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:40px; min-height:10px; margin-bottom:-10px;">3 Stars</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=4, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:40px; min-height:10px; margin-bottom:-10px;">4 Stars</button>
+                                        <button onclick="handleSearch(pageNum={{ page_num }}, rating=5, resultsPerPage={{results_per_page}})" class="dropbtn" style="min-width:40px; min-height:10px; margin-bottom:-10px;">5 Stars</button>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -142,6 +142,23 @@
       // call sendPostRequest with the input value
       sendPostRequest(pageNum=pageNum, rating=rating, resultsPerPage=resultsPerPage, keyword=keywordSearch)
     }
+</script>
+
+<script type="text/javascript">
+    $(document).on('submit','#search-asin-form', async function(e) {
+        $.ajax({
+            type:'POST',
+            dataType: 'json',
+            url: "{% url 'customer_insights:fetch_new_asin_data' request.team.slug %}",
+            async: false,
+            data:
+            {
+                search_asin:$("#search-asin").val(),
+                search_type:$("#search-type").val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        });
 </script>
 
 
