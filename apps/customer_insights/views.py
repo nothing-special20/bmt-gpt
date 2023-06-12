@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 
@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 from .functions_ra import get_keyword_details, get_single_product_details, store_single_product_details
 from .functions_other import rate_limiter, asin_list_maker, asin_list_maker_async, word_count_categories, customer_sentinment_data
 from .functions_visualizations import bar_chart
-from .models import ProcessedProductReviews, UserRequests, Asins
+from .models import ProcessedProductReviews, UserRequests, Asins, ProductGroups
 from .tasks import assign_topics_to_reviews_main, store_and_process_reviews, categorize_words, store_most_common_words, create_and_store_topics
 
 def fetch_new_asin_data(request, team_slug):
@@ -211,3 +211,40 @@ def customer_reviews(request, team_slug):
         }
 
     return render(request, 'web/amazon/customer_reviews.html', context)
+
+def product_groups(request, team_slug):
+    category_mappings = list(ProductGroups.objects.filter(USER=request.user.username).values('USER_PRODUCT_CATEGORY', 'ASIN'))
+
+    try:
+        category_mappings = list(ProductGroups.objects.filter(USER=request.user.username).values('USER_PRODUCT_CATEGORY', 'ASIN'))
+        categories = list(set([x['USER_PRODUCT_CATEGORY'] for x in category_mappings]))
+        category_mappings = [{'USER_PRODUCT_CATEGORY': x, 'ASIN': [y['ASIN'] for y in category_mappings if y['USER_PRODUCT_CATEGORY'] == x]} for x in categories]
+        
+    except:
+        category_mappings = [{'USER_PRODUCT_CATEGORY': 'Placeholder Category', 'ASIN': '123lol'}]
+    
+    context = { 'category_mappings': category_mappings}
+    return render(request, 'web/amazon/product_groups.html', context)
+
+def update_user_product_categories(request, team_slug):
+    print(request.POST)
+    asin_ids = [x for x in request.POST if 'asin-' in x]
+    asin_list = [request.POST.get(x) for x in asin_ids]
+    asin_list = [x for x in asin_list if x != '']
+    asin_list = list(set(asin_list))
+    
+    category = request.POST.get('category-1')
+
+    for asin in asin_list:
+        try:
+            Asins(ASIN=asin).save()
+        except:
+            print(f'Error: ASIN {asin} already exists in DB')
+
+        ProductGroups(
+            ASIN=Asins.objects.get(ASIN=asin),
+            USER_PRODUCT_CATEGORY=category,
+            USER=request.user.username,
+        ).save()
+
+    return JsonResponse({'status': 'success'})

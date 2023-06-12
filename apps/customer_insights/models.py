@@ -74,3 +74,8 @@ class ProcessedProductDetails(models.Model):
     ALSO_BOUGHT = ArrayField(models.TextField(), null=True)
     OTHER_SELLERS = ArrayField(models.JSONField(), null=True)
     LOAD_DATE = models.DateTimeField()
+
+class ProductGroups(models.Model):
+    USER = models.TextField()
+    USER_PRODUCT_CATEGORY = models.TextField()
+    ASIN = models.ForeignKey(Asins, to_field='ASIN', on_delete=models.CASCADE, db_column='ASIN', unique=False)

@@ -11,6 +11,11 @@
       <span class="pg-icon"><i class="fa fa-rocket"></i></span><span class="is-hidden-tablet-only">{% translate "Search Reviews" %}</span>
     </a>
   </li>
+  <li class="nav-item">
+    <a href="{% url 'customer_insights:product_groups' request.team.slug %}" class="nav-link {% if active_tab == 'teams_example' %}active{% endif %}">
+      <span class="pg-icon"><i class="fa fa-rocket"></i></span><span class="is-hidden-tablet-only">{% translate "My Product Groups" %}</span>
+    </a>
+  </li>
   {% if request.user|is_admin_of:request.team %}
   {% comment %} <li class="nav-item">
     <a href="{% url 'subscriptions_team:subscription_demo' request.team.slug %}" class="nav-link {% if active_tab == 'subscription_demo' %}active{% endif %}">

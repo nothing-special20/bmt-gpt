@@ -1,0 +1,167 @@
+{% extends "web/app/app_base.html" %}
+{% load static %}
+{% load i18n %}
+{% block app %}
+
+{% for message in messages %}
+<input type="hidden" id="login-msg" value="{{message}}">
+{% endfor %}
+
+<head>
+    <link rel="stylesheet" href="{% static "css/custom.css" %}">
+    <link id="theme-sheet" rel="stylesheet" href="{% static "css/core.css" %}">
+</head>
+
+<div class="main-content">
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- end page title -->
+            {% include "web/amazon/components/asin_selector.html" %}
+            <br><br><br>
+            <div id="review-cards">
+                <div id="category-container">
+                    <!-- Dynamically generate category cards here -->
+                </div>
+                
+                <!-- Template for a category card -->
+                <div class="category-template" style="">
+                    {% for category in category_mappings %}
+                    <div class="card category-card">
+                        <form class="control has-icons-left" method="post" action="{% url 'customer_insights:update_user_product_categories' request.team.slug %}">
+                            <input class="card-header" type="text" name="category-1" value="{{ category.USER_PRODUCT_CATEGORY }}">
+                            <br>
+                            <div class="product-list">
+                                <ul>
+                                    <div class="search-area" class="asin-card">
+                                        {% csrf_token %}
+                                        {% for asin in category.ASIN %}
+                                            <li>
+                                                <input class="input is-large" type="text" placeholder="ASIN 1" name="asin-1" value="{{ asin }}">
+                                                <button type="button" onclick="this.parentElement.remove();">X</button>
+                                            </li>
+                                        {% endfor %}
+                                        <input class="input is-large" type="text" placeholder="New ASIN" name="asin-0">
+                                        
+                                        {% comment %} id="add-product" {% endcomment %}
+                                        <button class="dropbtn add-product" type="button" class="asin-0">Add Another ASIN to Category</button>
+                                        <button class="dropbtn" type="submit" id="save-list">Save List</button>
+                                    </div>
+                                    <br>
+                                </ul>
+                            </div>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+            </div>
+            <button class="dropbtn" type="button" id="add-category">Add Another to Category</button>
+        </div>
+        <!-- container-fluid -->
+    </div>
+</div>
+      
+    <!-- End Page-content -->
+<!-- end main content-->
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+<script src="{% static "js/custom.js" %}"></script>
+
+<script type="text/javascript">
+    $(document).on('submit','#search-asin-form', async function(e) {
+        $.ajax({
+            type:'POST',
+            dataType: 'json',
+            url: "{% url 'customer_insights:fetch_new_asin_data' request.team.slug %}",
+            async: false,
+            data:
+            {
+                search_asin:$("#search-asin").val(),
+                search_type:$("#search-type").val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        });
+</script>
+
+<script>
+    var add_btns = document.querySelectorAll('.add-product');
+
+    add_btns.forEach(function(add_btn) {
+        add_btn.onclick = function() {
+            var parentElement = add_btn.parentElement;
+            let childElements = parentElement.querySelectorAll('[name*="asin-"]');
+            let childElementsArray = Array.from(childElements);
+            var counter = childElementsArray.length + 1;
+
+            // Create the new input element
+            var add_input = document.createElement("input");
+            add_input.className = "input is-large"
+            add_input.placeholder = "Enter ASIN"
+            add_input.name = "asin-" + counter
+
+            // Create the delete button
+            var deleteButton = document.createElement("button");
+            deleteButton.textContent = "x";
+            deleteButton.onclick = function() {
+                parentElement.removeChild(li);
+            }
+
+            // Create the new li element
+            var li = document.createElement("li");
+
+            // Add the input element to the li
+            li.appendChild(add_input);
+            li.appendChild(deleteButton);
+
+            // Add the li to the element            
+            parentElement.appendChild(li);
+
+            counter = counter + 1;
+        }
+    });
+</script>
+
+{% comment %} Add Categories {% endcomment %}
+<script>
+    var add_btn = document.getElementById('add-category');
+
+    var counter = 2;
+
+    add_btn.onclick = function() {
+        // Create the new input element
+        var add_category = document.querySelector('[class*="category-card"]').cloneNode(true);
+        add_category.classList.add("card");
+        add_category.classList.add("add-category");
+        add_category.placeholder = "CATEGORY " + counter;
+        add_category.value = "CATEGORY " + counter;
+        add_category.name = "category-" + counter;
+        add_category.id = "category-template" + counter;
+
+        // Add the li to the element
+        // var element = document.getElementById("category-template");
+        var element = document.getElementById("review-cards");
+        element.appendChild(add_category);
+
+        counter = counter + 1;
+    }
+</script>
+
+<style>
+    .card {
+        border: 1px solid black;
+        padding: 10px;
+        margin: 10px;
+    }
+    
+    .card-header {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    
+    .product-list {
+        margin-bottom: 10px;
+    }
+        
+</style>
+
+{% endblock %}
