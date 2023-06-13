@@ -91,7 +91,7 @@ def fetch_new_asin_data(request, team_slug):
             messages.success(request, f"Fetching data for {search_type}: {search_value}. Your report will be ready in a few minutes.")
 
         else:
-            messages.success(request, f"Sorry - you have reached your monthly quota. Please upgrade your plan to analyze more products.")
+            messages.warning(request, f"Sorry - you have reached your monthly quota. Please upgrade your plan to analyze more products.")
         return HttpResponse(
             status=204,
             headers={
@@ -261,8 +261,11 @@ def customer_reviews(request, team_slug):
     return render(request, 'web/amazon/customer_reviews.html', context)
 
 def product_groups(request, team_slug):
+    user = request.user.username
+    product_category_list = product_group_list_maker(user)
+
     try:
-        category_mappings = list(ProductGroups.objects.filter(USER=request.user.username).values('USER_PRODUCT_CATEGORY', 'ASIN').order_by(Lower('USER_PRODUCT_CATEGORY').desc()))
+        category_mappings = list(ProductGroups.objects.filter(USER=user).values('USER_PRODUCT_CATEGORY', 'ASIN').order_by(Lower('USER_PRODUCT_CATEGORY').desc()))
 
         categories = list(set([x['USER_PRODUCT_CATEGORY'] for x in category_mappings]))
         category_mappings = [{'USER_PRODUCT_CATEGORY': x, 'ASIN': [y['ASIN'] for y in category_mappings if y['USER_PRODUCT_CATEGORY'] == x]} for x in categories]
@@ -270,5 +273,5 @@ def product_groups(request, team_slug):
     except:
         category_mappings = [{'USER_PRODUCT_CATEGORY': 'Placeholder Category', 'ASIN': '123lol'}]
     
-    context = { 'category_mappings': category_mappings}
+    context = { 'category_mappings': category_mappings, 'analyzed_asin_list': product_category_list,}
     return render(request, 'web/amazon/product_groups.html', context)
