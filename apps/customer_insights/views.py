@@ -91,8 +91,7 @@ def fetch_new_asin_data(request, team_slug):
             })
 
 def update_user_product_categories(request, team_slug):
-    asin_ids = [x for x in request.POST if 'asin-' in x]
-    asin_list = [request.POST.get(x) for x in asin_ids]
+    asin_list = request.POST.get('asins').split(';')
     asin_list = [x for x in asin_list if x != '']
     asin_list = list(set(asin_list))
     
@@ -104,11 +103,8 @@ def update_user_product_categories(request, team_slug):
         except:
             print(f'Error: ASIN {asin} already exists in DB')
 
-        ProductGroups(
-            ASIN=Asins.objects.get(ASIN=asin),
-            USER_PRODUCT_CATEGORY=category,
-            USER=request.user.username,
-        ).save()
+        ProductGroups.objects.filter(USER=request.user.username, USER_PRODUCT_CATEGORY=category, ASIN=Asins.objects.get(ASIN=asin)
+            ).update_or_create(USER=request.user.username, USER_PRODUCT_CATEGORY=category, ASIN=Asins.objects.get(ASIN=asin))
 
     return JsonResponse({'status': 'success'})   
 

@@ -34,7 +34,7 @@
                 <div class="category-template" style="">
                     {% for category in category_mappings %}
                     <div class="card category-card">
-                        <form class="control has-icons-left" method="post" action="{% url 'customer_insights:update_user_product_categories' request.team.slug %}">
+                        <form class="control has-icons-left" method="post" id="category-form">
                             <input class="card-header" type="text" name="category" value="{{ category.USER_PRODUCT_CATEGORY }}">
                             <button type="button" class="delete-category" onclick="showModal(this.parentElement.parentElement)">X</button>
                             <br>
@@ -44,15 +44,14 @@
                                         {% csrf_token %}
                                         {% for asin in category.ASIN %}
                                             <li>
-                                                <input class="input is-large" type="text" placeholder="ASIN 1" name="asin-1" value="{{ asin }}">
+                                                <input class="input is-large" type="text" placeholder="ASIN 1" name="asin-{{asin}}" value="{{ asin }}">
                                                 <button type="button" onclick="this.parentElement.remove();">X</button>
                                             </li>
                                         {% endfor %}
                                         <input class="input is-large" type="text" placeholder="New ASIN" name="asin-0">
                                         
-                                        {% comment %} id="add-product" {% endcomment %}
-                                        <button class="dropbtn add-product" type="button" class="asin-0">Add Another ASIN to Category</button>
-                                        <button class="dropbtn" type="submit" id="save-list">Save List</button>
+                                        <button class="dropbtn add-product" type="button">Add Another ASIN to Category</button>
+                                        <button class="dropbtn category-form-btn" type="button" id="save-list">Save List</button>
                                     </div>
                                     <br>
                                 </ul>
@@ -89,7 +88,28 @@
                 csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
             },
         });
+    });
+
+    $(document).on('click','.category-form-btn', async function(e) {
+        var clickedElement = this;
+        var category = clickedElement.parentElement.parentElement.parentElement.parentElement.querySelector('[name*="category"]').value;
+        let asin_eles = Array.from(clickedElement.parentElement.querySelectorAll('[name*="asin-"]'));
+        let asin_values = asin_eles.map(element => element.value);
+        let asin_string = asin_values.join(";");
+
+        $.ajax({
+            type:'POST',
+            dataType: 'json',
+            url: "{% url 'customer_insights:update_user_product_categories' request.team.slug %}",
+            async: false,
+            data:
+            {
+                category:category,
+                asins:asin_string,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
         });
+    });
 </script>
 
 <script>
