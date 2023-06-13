@@ -5,19 +5,18 @@ from django.db.models import Count
 
 import pandas as pd
 
-from .models import Asins, ProcessedProductReviews, CategorizedWords, ReviewsAnalyzedInternalModels
+from .models import Asins, ProcessedProductReviews, CategorizedWords, ReviewsAnalyzedInternalModels, ProductGroups, UserRequests
 from .functions_ml import most_common_words, lemmatize
 
 def rate_limiter(user, asin_limit):
-    # now = datetime.now()
-    # current_month = now.month
-    # current_year = now.year
+    now = datetime.now()
+    current_month = now.month
+    current_year = now.year
 
-    # all_user_asins = UserRequests.objects.filter(USER=user, REQUEST_DATE__year=current_year, REQUEST_DATE__month=current_month).values('ASIN').distinct()
-    # all_user_asins = [x['ASIN'] for x in list(all_user_asins)]
+    all_user_asins = UserRequests.objects.filter(USER=user, REQUEST_DATE__year=current_year, REQUEST_DATE__month=current_month).values('ASIN').distinct()
+    all_user_asins = [x['ASIN'] for x in list(all_user_asins)]
 
-    # return len(all_user_asins) < asin_limit
-    return True
+    return len(all_user_asins) < asin_limit
 
 def asin_list_maker(user):
     analyzed_asin_list = Asins.objects.filter(userrequests__USER=user).values('ASIN').distinct()
@@ -25,9 +24,29 @@ def asin_list_maker(user):
     analyzed_asin_list = [x['ASIN'] for x in analyzed_asin_list]
     return analyzed_asin_list
 
+def product_group_list_maker(user):
+    product_group_list = ProductGroups.objects.filter(USER=user).values('USER_PRODUCT_CATEGORY').distinct()
+    product_group_list = list(product_group_list)
+    product_group_list = [x['USER_PRODUCT_CATEGORY'] for x in product_group_list]
+    return product_group_list
+
+def use_product_categories(user, category):
+    output = list(ProductGroups.objects.filter(USER_PRODUCT_CATEGORY=category, USER=user).values('ASIN').distinct())
+    output = [x['ASIN'] for x in output]
+    return output
+
+@sync_to_async
+def use_product_categories_async(user, category):
+    output = use_product_categories(user, category)
+    return output
+
 @sync_to_async
 def asin_list_maker_async(user):
     return asin_list_maker(user)
+
+@sync_to_async
+def product_group_list_maker_async(user):
+    return product_group_list_maker(user)
 
 @sync_to_async
 def word_count_categories(asin):

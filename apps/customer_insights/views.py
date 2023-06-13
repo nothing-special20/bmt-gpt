@@ -17,7 +17,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 from .functions_ra import get_keyword_details, get_single_product_details, store_single_product_details
-from .functions_other import rate_limiter, asin_list_maker, asin_list_maker_async, word_count_categories, customer_sentinment_data
+from .functions_other import rate_limiter, product_group_list_maker, product_group_list_maker_async, word_count_categories, customer_sentinment_data, use_product_categories, use_product_categories_async
 from .functions_visualizations import bar_chart
 from .models import ProcessedProductReviews, UserRequests, Asins, ProductGroups
 from .tasks import assign_topics_to_reviews_main, store_and_process_reviews, categorize_words, store_most_common_words, create_and_store_topics
@@ -27,7 +27,8 @@ from .tasks import assign_topics_to_reviews_main, store_and_process_reviews, cat
 def fetch_new_asin_data(request, team_slug):
     if request.user.is_authenticated:
         user = request.user.username
-        search_type = request.POST.get('search_type')
+        # search_type = request.POST.get('search_type')
+        search_type = 'Product-Group'
         search_value = request.POST.get('search_asin')
         asin_list = []
         if search_type == 'ASIN':
@@ -39,10 +40,15 @@ def fetch_new_asin_data(request, team_slug):
             else:
                 asin_list = [asin_list]
 
-        if search_type == 'KEYWORD':
-            keyword_details = get_keyword_details(search_value)
-            keyword_details = json.loads(json.dumps(keyword_details))
-            asin_list = [x['asin'] for x in keyword_details['asin_list'][0:10]]
+        # Might reactivate this later
+        # if search_type == 'KEYWORD':
+        #     keyword_details = get_keyword_details(search_value)
+        #     keyword_details = json.loads(json.dumps(keyword_details))
+        #     asin_list = [x['asin'] for x in keyword_details['asin_list'][0:10]]
+
+        if search_type == 'Product-Group':
+            category_mappings = list(ProductGroups.objects.filter(USER=request.user.username, USER_PRODUCT_CATEGORY=search_value).distinct().values('ASIN'))
+            asin_list = [x['ASIN'] for x in category_mappings]
 
         #Rate limit them to 20 asins per month
         if rate_limiter(user, 20):
@@ -81,8 +87,11 @@ def fetch_new_asin_data(request, team_slug):
 
                 # categorize_words.delay(review_top_nouns_adjs_verbs)
 
-        print(f"Fetching data for {search_type}: {search_value}.")
-        messages.success(request, f"Fetching data for {search_type}: {search_value}. Your report will be ready in a few minutes.")
+            print(f"Fetching data for {search_type}: {search_value}.")
+            messages.success(request, f"Fetching data for {search_type}: {search_value}. Your report will be ready in a few minutes.")
+
+        else:
+            messages.success(request, f"Sorry - you have reached your monthly quota. Please upgrade your plan to analyze more products.")
         return HttpResponse(
             status=204,
             headers={
@@ -98,14 +107,18 @@ def update_user_product_categories(request, team_slug):
     
     category = request.POST.get('category')
 
+    ProductGroups.objects.filter(USER=request.user.username, USER_PRODUCT_CATEGORY=category).delete()
+
     for asin in asin_list:
         try:
             Asins(ASIN=asin).save()
         except:
             print(f'Error: ASIN {asin} already exists in DB')
 
-        ProductGroups.objects.filter(USER=request.user.username, USER_PRODUCT_CATEGORY=category, ASIN=Asins.objects.get(ASIN=asin)
-            ).update_or_create(USER=request.user.username, USER_PRODUCT_CATEGORY=category, ASIN=Asins.objects.get(ASIN=asin))
+        # ProductGroups.objects.filter(USER=request.user.username, USER_PRODUCT_CATEGORY=category, ASIN=Asins.objects.get(ASIN=asin)
+        #     ).update_or_create(USER=request.user.username, USER_PRODUCT_CATEGORY=category, ASIN=Asins.objects.get(ASIN=asin))
+
+        ProductGroups(USER=request.user.username, USER_PRODUCT_CATEGORY=category, ASIN=Asins.objects.get(ASIN=asin)).save()
 
     return JsonResponse({'status': 'success'})   
 
@@ -124,14 +137,17 @@ async def main(request, team_slug):
     if request.user.is_authenticated:
         user = request.user.username
         
-        asin_list = await asin_list_maker_async(user)
+        # asin_list = await asin_list_maker_async(user)
+        product_category_list = await product_group_list_maker_async(user)
 
         positive_ratings = [4, 5]
         negative_ratings = [1, 2, 3]
 
         chart_config = {'x': 'word', 'y': 'count'}
         if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
-            asin = request.POST.get('retrieve-asin-data-1')
+            category = request.POST.get('retrieve-asin-data-1')
+
+            asin = await use_product_categories_async(user, category)
 
             if type(asin) != list:
                 asin = [asin]
@@ -159,7 +175,7 @@ async def main(request, team_slug):
             # negative_descriptions = negative_descriptions[:negative_descriptions_max_len]
 
             context = {
-                'analyzed_asin_list': asin_list,
+                'analyzed_asin_list': product_category_list,
                 'selected_asin': asin,
                 'who_plot': who_plot,
                 'where_plot': where_plot,
@@ -171,7 +187,7 @@ async def main(request, team_slug):
             }
         else:
             context = {
-                'analyzed_asin_list': asin_list,
+                'analyzed_asin_list': product_category_list,
                 'selected_asin': '',
                 'who_plot': '',
                 'where_plot': '',
@@ -192,12 +208,14 @@ def customer_reviews(request, team_slug):
         return render(request, 'web/landing_page.html')
     
     user = request.user.username
-    asin_list = asin_list_maker(user)
-    context = {'analyzed_asin_list': asin_list, 'total_pages': 0}
+    product_category_list = product_group_list_maker(user)
+
+    context = {'analyzed_asin_list': product_category_list, 'total_pages': 0}
     results_per_page = 10
     
     if request.method == 'POST' and 'retrieve-asin-data-1' in request.POST:
-        asin = request.POST.get('retrieve-asin-data-1')
+        category = request.POST.get('retrieve-asin-data-1')
+        asin = use_product_categories(user, category)
 
         page_num = 1
         rating = [1,2,3,4,5]
