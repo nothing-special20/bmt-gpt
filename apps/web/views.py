@@ -21,7 +21,7 @@ def home(request):
             ))
             return HttpResponseRedirect(reverse('teams:manage_teams'))
     else:
-        return render(request, 'web/landing_page.html')
+        return render(request, 'web/demo-saas.html')
 
 
 @login_and_team_required

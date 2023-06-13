@@ -206,12 +206,12 @@ async def main(request, team_slug):
         return await sync_to_async(render)(request, 'web/amazon/amazon_v2.html', context)
 
     else:
-        return render(request, 'web/landing_page.html')
+        return render(request, 'web/demo-saas.html')
     
 
 def customer_reviews(request, team_slug):
     if request.user.is_authenticated == False:
-        return render(request, 'web/landing_page.html')
+        return render(request, 'web/demo-saas.html')
     
     user = request.user.username
     product_category_list = product_group_list_maker(user)
