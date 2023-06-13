@@ -18,6 +18,13 @@
             <!-- end page title -->
             {% include "web/amazon/components/asin_selector.html" %}
             <br><br><br>
+            <div id="myModal" class="popup">
+                <div class="popup-content">
+                    <p>Warning: are you sure that you want to delete this category?</p>
+                    <button id="yesButton">Yes</button>
+                    <button id="noButton">No</button>
+                </div>
+            </div>
             <div id="review-cards">
                 <div id="category-container">
                     <!-- Dynamically generate category cards here -->
@@ -28,7 +35,8 @@
                     {% for category in category_mappings %}
                     <div class="card category-card">
                         <form class="control has-icons-left" method="post" action="{% url 'customer_insights:update_user_product_categories' request.team.slug %}">
-                            <input class="card-header" type="text" name="category-1" value="{{ category.USER_PRODUCT_CATEGORY }}">
+                            <input class="card-header" type="text" name="category" value="{{ category.USER_PRODUCT_CATEGORY }}">
+                            <button type="button" class="delete-category" onclick="showModal(this.parentElement.parentElement)">X</button>
                             <br>
                             <div class="product-list">
                                 <ul>
@@ -56,11 +64,12 @@
                 
             </div>
             <button class="dropbtn" type="button" id="add-category">Add Another to Category</button>
+            <button class="dropbtn" type="button">Save All Categories</button>
         </div>
         <!-- container-fluid -->
     </div>
 </div>
-      
+
     <!-- End Page-content -->
 <!-- end main content-->
 <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
@@ -146,6 +155,59 @@
     }
 </script>
 
+<!-- Vanilla JS for the modal functionality -->
+<script>
+    // Get the modal and buttons
+    var modal = document.getElementById("myModal");
+    var yesButton = document.getElementById("yesButton");
+    var noButton = document.getElementById("noButton");
+    let categoryCard;
+
+    // Function to show the modal
+    function showModal(ele) {
+        modal.style.display = "block";
+        categoryCard = ele;
+    }
+
+    // Function to hide the modal
+    function hideModal() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks on the Yes button, delete the element and hide the modal
+    yesButton.onclick = function() {        
+        var category = categoryCard.querySelector('[name*="category"]').value;
+
+        $.ajax({
+            url: "{% url 'customer_insights:delete_user_product_group' request.team.slug %} ", // Django endpoint
+            type: 'POST',
+            data: {
+                // Your data here. For example:
+                'product_category': category,
+                // CSRF token, mandatory for Django POST requests.
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (data) {
+                // Handle success here, data is the response from the server
+                console.log(data);
+            },
+            error: function (error) {
+                // Handle error here
+                console.log(error);
+            }
+        });
+        
+        categoryCard.remove();
+        hideModal();
+    }
+
+    // When the user clicks on the No button, hide the modal
+    noButton.onclick = function() {
+        hideModal();
+    }
+
+</script>
+
 <style>
     .card {
         border: 1px solid black;
@@ -160,6 +222,26 @@
     
     .product-list {
         margin-bottom: 10px;
+    }
+
+    .popup {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+    
+    .popup-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
     }
         
 </style>

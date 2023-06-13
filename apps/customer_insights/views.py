@@ -21,6 +21,8 @@ from .functions_visualizations import bar_chart
 from .models import ProcessedProductReviews, UserRequests, Asins, ProductGroups
 from .tasks import assign_topics_to_reviews_main, store_and_process_reviews, categorize_words, store_most_common_words, create_and_store_topics
 
+##### JSON Responses
+
 def fetch_new_asin_data(request, team_slug):
     if request.user.is_authenticated:
         user = request.user.username
@@ -87,7 +89,38 @@ def fetch_new_asin_data(request, team_slug):
                     "showMessage": f"Fetching data for {search_type}: {search_value}."
                 })
             })
+
+def update_user_product_categories(request, team_slug):
+    asin_ids = [x for x in request.POST if 'asin-' in x]
+    asin_list = [request.POST.get(x) for x in asin_ids]
+    asin_list = [x for x in asin_list if x != '']
+    asin_list = list(set(asin_list))
     
+    category = request.POST.get('category')
+
+    for asin in asin_list:
+        try:
+            Asins(ASIN=asin).save()
+        except:
+            print(f'Error: ASIN {asin} already exists in DB')
+
+        ProductGroups(
+            ASIN=Asins.objects.get(ASIN=asin),
+            USER_PRODUCT_CATEGORY=category,
+            USER=request.user.username,
+        ).save()
+
+    return JsonResponse({'status': 'success'})   
+
+def delete_user_product_group(request, team_slug):
+
+    category = request.POST.get('product_category')
+    
+    ProductGroups.objects.filter(USER_PRODUCT_CATEGORY=category, USER=request.user.username).delete()
+
+    return JsonResponse({'status': 'Successfully deleted user product group'}) 
+
+##### HTML Responses
 
 # @login_and_team_required
 async def main(request, team_slug):
@@ -225,26 +258,3 @@ def product_groups(request, team_slug):
     
     context = { 'category_mappings': category_mappings}
     return render(request, 'web/amazon/product_groups.html', context)
-
-def update_user_product_categories(request, team_slug):
-    print(request.POST)
-    asin_ids = [x for x in request.POST if 'asin-' in x]
-    asin_list = [request.POST.get(x) for x in asin_ids]
-    asin_list = [x for x in asin_list if x != '']
-    asin_list = list(set(asin_list))
-    
-    category = request.POST.get('category-1')
-
-    for asin in asin_list:
-        try:
-            Asins(ASIN=asin).save()
-        except:
-            print(f'Error: ASIN {asin} already exists in DB')
-
-        ProductGroups(
-            ASIN=Asins.objects.get(ASIN=asin),
-            USER_PRODUCT_CATEGORY=category,
-            USER=request.user.username,
-        ).save()
-
-    return JsonResponse({'status': 'success'})

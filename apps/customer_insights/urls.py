@@ -10,4 +10,5 @@ urlpatterns = [
     path('customer_reviews', views.customer_reviews, name='customer_reviews'),
     path('product_groups', views.product_groups, name='product_groups'),
     path('update_user_product_categories', views.update_user_product_categories, name='update_user_product_categories'),
+    path('delete_user_product_group', views.delete_user_product_group, name='delete_user_product_group'),
 ]
