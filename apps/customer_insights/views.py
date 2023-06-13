@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 from .functions_ra import get_keyword_details, get_single_product_details, store_single_product_details
 from .functions_other import rate_limiter, product_group_list_maker, product_group_list_maker_async, word_count_categories, customer_sentinment_data, use_product_categories, use_product_categories_async
 from .functions_visualizations import bar_chart
-from .models import ProcessedProductReviews, UserRequests, Asins, ProductGroups
+from .models import ProcessedProductReviews, UserRequests, Asins, ProductGroups, ProcessedProductDetails
 from .tasks import assign_topics_to_reviews_main, store_and_process_reviews, categorize_words, store_most_common_words, create_and_store_topics
 
 ##### JSON Responses
@@ -68,10 +68,16 @@ def fetch_new_asin_data(request, team_slug):
                 )
                 user_request_doc.save()
 
-                product_details = get_single_product_details(asin)
-                store_single_product_details(product_details)
+                try:
+                    total_reviews = ProcessedProductDetails.objects.get(ASIN_ORIGINAL_ID=Asins.objects.get(ASIN=asin)).REVIEWS['total_reviews']
+                except:
+                    product_details = get_single_product_details(asin)
+                    store_single_product_details(product_details)
+                    total_reviews = product_details['reviews']
 
-                max_page = 30
+                percent_of_reviews_with_comments = 0.15
+                max_page = math.ceil(percent_of_reviews_with_comments * total_reviews / 10)
+
                 store_and_process_reviews_jobs = [store_and_process_reviews.s(asin, pg_num) for pg_num in range(1, max_page + 1)]
 
                 callback_chain = chain(store_most_common_words.s(), create_and_store_topics.s(), assign_topics_to_reviews_main.s())
