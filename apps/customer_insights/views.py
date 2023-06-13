@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
+from django.db.models.functions import Lower
 
 import math
 import re
@@ -242,10 +243,9 @@ def customer_reviews(request, team_slug):
     return render(request, 'web/amazon/customer_reviews.html', context)
 
 def product_groups(request, team_slug):
-    category_mappings = list(ProductGroups.objects.filter(USER=request.user.username).values('USER_PRODUCT_CATEGORY', 'ASIN'))
-
     try:
-        category_mappings = list(ProductGroups.objects.filter(USER=request.user.username).values('USER_PRODUCT_CATEGORY', 'ASIN'))
+        category_mappings = list(ProductGroups.objects.filter(USER=request.user.username).values('USER_PRODUCT_CATEGORY', 'ASIN').order_by(Lower('USER_PRODUCT_CATEGORY').desc()))
+
         categories = list(set([x['USER_PRODUCT_CATEGORY'] for x in category_mappings]))
         category_mappings = [{'USER_PRODUCT_CATEGORY': x, 'ASIN': [y['ASIN'] for y in category_mappings if y['USER_PRODUCT_CATEGORY'] == x]} for x in categories]
         
