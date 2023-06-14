@@ -7,7 +7,7 @@ RUN \
   wget -qO- https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
   apt-get update && \
   apt-get install -yqq nodejs && \
-  apt-get install libpq-dev
+  apt-get install libpq-dev -y
 
 # install gettext for translations
 RUN apt-get -yqq install gettext
