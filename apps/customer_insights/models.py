@@ -79,3 +79,7 @@ class ProductGroups(models.Model):
     USER = models.TextField()
     USER_PRODUCT_CATEGORY = models.TextField()
     ASIN = models.ForeignKey(Asins, to_field='ASIN', on_delete=models.CASCADE, db_column='ASIN', unique=False)
+
+class BetaTesterSignup(models.Model):
+    EMAIL = models.TextField(unique=True)
+    NAME = models.TextField()

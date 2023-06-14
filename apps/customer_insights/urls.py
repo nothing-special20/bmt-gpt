@@ -11,4 +11,5 @@ urlpatterns = [
     path('product_groups', views.product_groups, name='product_groups'),
     path('update_user_product_categories', views.update_user_product_categories, name='update_user_product_categories'),
     path('delete_user_product_group', views.delete_user_product_group, name='delete_user_product_group'),
+    path('beta_tester_signup', views.beta_tester_signup, name='beta_tester_signup'),
 ]

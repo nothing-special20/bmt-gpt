@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 from .functions_ra import get_keyword_details, get_single_product_details, store_single_product_details
 from .functions_other import rate_limiter, product_group_list_maker, product_group_list_maker_async, word_count_categories, customer_sentinment_data, use_product_categories, use_product_categories_async
 from .functions_visualizations import bar_chart
-from .models import ProcessedProductReviews, UserRequests, Asins, ProductGroups, ProcessedProductDetails
+from .models import ProcessedProductReviews, UserRequests, Asins, ProductGroups, ProcessedProductDetails, BetaTesterSignup
 from .tasks import assign_topics_to_reviews_main, store_and_process_reviews, categorize_words, store_most_common_words, create_and_store_topics
 
 ##### JSON Responses
@@ -281,3 +281,15 @@ def product_groups(request, team_slug):
     
     context = { 'category_mappings': category_mappings, 'analyzed_asin_list': product_category_list,}
     return render(request, 'web/amazon/product_groups.html', context)
+
+def beta_tester_signup(request, team_slug):
+    email = request.POST.get('email')
+    name = request.POST.get('name')
+    
+    try:
+        BetaTesterSignup(EMAIL=email, NAME=name).save()
+        context = {'success': True}
+    except:
+        context = {'error': True}
+    
+    return render(request, 'web/demo-saas.html', context)

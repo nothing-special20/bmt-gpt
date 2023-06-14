@@ -63,10 +63,10 @@
                                     <ul class="nav nav-pills" id="mainNav">
                                        <li class="active"><a class="dropdown-item active" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#intro">INTRO</a></li>
                                        <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#features">FEATURES</a></li>
-                                       <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#overview">OVERVIEW</a></li>
-                                       <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#reviews">REVIEWS</a></li>
+                                       {% comment %} <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#overview">OVERVIEW</a></li> {% endcomment %}
+                                       {% comment %} <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#reviews">REVIEWS</a></li> {% endcomment %}
                                        <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#pricing">PRICING</a></li>
-                                       <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#faqs">FAQ'S</a></li>
+                                       {% comment %} <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#faqs">FAQ'S</a></li> {% endcomment %}
                                        <li><a class="dropdown-item" data-hash="" data-hash-offset="0" data-hash-offset-lg="60" href="#trial">TRIAL</a></li>
                                     </ul>
                                  </nav>
@@ -360,7 +360,7 @@
                                  <li>30 New ASINs Per Month</li>
 								 <li>VOC Reports</li>
                                  <li>Listing Optimization</li>
-								 <li>Comparison Reports</li>
+								 <li>Product Comparison Reports</li>
                                  <li>Download Reviews</li>
                               </ul>
                            </div>
@@ -383,7 +383,7 @@
 								<li>200 New ASINs Per Month</li>
 								<li>VOC Reports</li>
 								<li>Listing Optimization</li>
-								<li>Comparison Reports</li>
+								<li>Product Comparison Reports</li>
 								<li>Download Reviews</li>
 							 </ul>
                            </div>
@@ -407,7 +407,7 @@
 									<li>600+ New ASINs Per Month</li>
 									<li>VOC Reports</li>
 									<li>Listing Optimization</li>
-									<li>Comparison Reports</li>
+									<li>Product Comparison Reports</li>
 									<li>Download Reviews</li>
 								 </ul>
                               </ul>
@@ -525,14 +525,18 @@
                   </div>
                   <div class="row justify-content-center">
                      <div class="col-lg-6">
-                        <form action="php/contact-form.php" class="contact-form custom-form-style-1 form-errors-light" method="POST">
-                           <div class="contact-form-success alert alert-success d-none mt-4">
-                              <strong>Success!</strong> Your message has been sent to us.
-                           </div>
-                           <div class="contact-form-error alert alert-danger d-none mt-4">
-                              <strong>Error!</strong> There was an error sending your message.
-                              <span class="mail-error-message text-1 d-block"></span>
-                           </div>
+                        <form action="{% url 'customer_insights:beta_tester_signup' None %}" class="contact-form custom-form-style-1 form-errors-light" method="POST">
+                           {% csrf_token %}
+                           {% if success %}
+                              <div class="contact-form-success alert alert-success mt-4">
+                                 <strong>Success!</strong> Your message has been sent to us.
+                              </div>
+                           {% elif error %}
+                              <div class="contact-form-error alert alert-danger mt-4">
+                                 <strong>Error!</strong> That email address was already taken.
+                                 <span class="mail-error-message text-1 d-block"></span>
+                              </div>
+                           {% endif %}
                            <input id="subject" name="subject" type="hidden" value="Contact Form - Start Free Trial"/>
                            <div class="row">
                               <div class="form-group col mb-2">
@@ -651,7 +655,7 @@
       <!-- Theme Base, Components and Settings -->
       <script src="{% static 'js/vendor/porto/theme.js' %}"></script>
       <!-- Current Page Vendor and Views -->
-      <script src="{% static 'js/vendor/porto/view.contact.js' %}"></script>
+      {% comment %} <script src="{% static 'js/vendor/porto/view.contact.js' %}"></script> {% endcomment %}
       <!-- Theme Custom -->
       <script src="{% static 'js/vendor/porto/custom.js' %}"></script>
       <!-- Theme Initialization Files -->
