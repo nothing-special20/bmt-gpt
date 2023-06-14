@@ -270,14 +270,19 @@ def product_groups(request, team_slug):
     user = request.user.username
     product_category_list = product_group_list_maker(user)
 
+    _placeholder_category_list = [{'USER_PRODUCT_CATEGORY': 'Placeholder Category', 'ASIN': ''}]
+
     try:
         category_mappings = list(ProductGroups.objects.filter(USER=user).values('USER_PRODUCT_CATEGORY', 'ASIN').order_by(Lower('USER_PRODUCT_CATEGORY').desc()))
 
-        categories = list(set([x['USER_PRODUCT_CATEGORY'] for x in category_mappings]))
-        category_mappings = [{'USER_PRODUCT_CATEGORY': x, 'ASIN': [y['ASIN'] for y in category_mappings if y['USER_PRODUCT_CATEGORY'] == x]} for x in categories]
+        if len(category_mappings) > 0:
+            categories = list(set([x['USER_PRODUCT_CATEGORY'] for x in category_mappings]))
+            category_mappings = [{'USER_PRODUCT_CATEGORY': x, 'ASIN': [y['ASIN'] for y in category_mappings if y['USER_PRODUCT_CATEGORY'] == x]} for x in categories]
         
+        else:
+            category_mappings = _placeholder_category_list
     except:
-        category_mappings = [{'USER_PRODUCT_CATEGORY': 'Placeholder Category', 'ASIN': '123lol'}]
+        category_mappings = _placeholder_category_list
     
     context = { 'category_mappings': category_mappings, 'analyzed_asin_list': product_category_list,}
     return render(request, 'web/amazon/product_groups.html', context)
