@@ -14,6 +14,10 @@
         {% include 'web/components/microsoft_clarity.html' %}
     {% endif %}
 
+    {% if FACEBOOK_PIXEL %}
+        {% include 'web/components/facebook_pixel.html' %}
+    {% endif %}
+
 
 {% if project_meta %}
   {% with project_meta|get_title:page_title as title %}
@@ -50,6 +54,9 @@
     {% endif %}
     {% if MICROSOFT_CLARITY %}
         {% include 'web/components/microsoft_clarity.html' %}
+    {% endif %}
+    {% if FACEBOOK_PIXEL %}
+        {% include 'web/components/facebook_pixel.html' %}
     {% endif %}
     {% if CRISP_ID %}
         {% include 'web/components/crisp.html' %}
